@@ -25,8 +25,7 @@ after_initialize do
 
   require_relative 'app/controllers/ebay_controller.rb'
   require_relative 'app/controllers/ebay_ad_controller.rb'
-
-  require_relative 'app/models/ebay_listing.rb'
+  require_relative 'app/models/ebay_models.rb'
   require_relative 'lib/ebay_scraper.rb'
   require_relative 'lib/ebay_api.rb'
   require_relative 'jobs/api_jobs.rb'
@@ -34,7 +33,9 @@ after_initialize do
   EbayAdPlugin::Engine.routes.draw do
     get '/ebay' => 'ebay#index'
     get "/ebay/accounts" => "ebay#accounts"
+    get "/ebay/random" => "ebay#random"
     get "/ebay/api_calls" => "ebay#api_calls"
+
     get "/ebay/ad" => "ebay_ad#ad_data"
 
     

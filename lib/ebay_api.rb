@@ -21,6 +21,16 @@ module EbayAdPlugin::EbayAPI
     end
 
 
+    def self.count_call(call_type)
+        ebay_api_call = EbayAdPlugin::EbayApiCall.find_or_initialize_by(date: Date.today, call_type: call_type)
+
+        if ebay_api_call.new_record?
+          ebay_api_call.count = 1
+          ebay_api_call.save
+        else
+          ebay_api_call.increment!(:count)
+        end
+    end
 
     def self.update_token()
 
@@ -47,12 +57,12 @@ module EbayAdPlugin::EbayAPI
         @@token_time = Time.now
         @@token_expiry = response_info["expires_in"]    
 
-        ebay_api_call = EbayAdPlugin::EbayApiCall.find_or_initialize_by(date: Date.today, type: "oauth")
-        ebay_api_call.increment!(:count)
-
+        self.count_call("oauth")
     end
     
     def self.add_ebay_listing(item_data)
+
+        #todo: add to db in another file? increased modularity
         puts item_data
         
         EbayAdPlugin::EbayListing.create!(
@@ -66,8 +76,8 @@ module EbayAdPlugin::EbayAPI
           end_date:                        Time.now,
           location:                        item_data["itemLocation"]["country"],
           seller:                          item_data["seller"]["username"],
-          feedback_score:                  item_data["seller"]["feedbackScore"],
-          feedback_percent:                item_data["seller"]["feedbackPercentage"]
+          feedback_score:                  item_data["seller"]["feedbackScore"].to_i,
+          feedback_percent:                item_data["seller"]["feedbackPercentage"].to_d
         )
 
         item_data["itemId"]
@@ -88,8 +98,7 @@ module EbayAdPlugin::EbayAPI
         request['Content-Type'] = 'application/json'
         request['X-EBAY-C-ENDUSERCTX'] = 'contextualLocation=country%3DUS%2Czip%3D19406'
 
-        ebay_api_call = EbayAdPlugin::EbayApiCall.find_or_initialize_by(date: Date.today, type: "api")
-        ebay_api_call.increment!(:count)
+        self.count_call("browse")
 
         return http.request(request)
 
@@ -114,15 +123,26 @@ module EbayAdPlugin::EbayAPI
     def self.fetch_listings_by_seller(seller_id)
 
         query_string = "q=pokemon"
-        buy_options = "buyingOptions:{AUCTION|FIXED_PRICE}"
-        newly_listed = "sort=newlyListed"
     
-        url = "#{@@browse_api}/item_summary/search?#{query_string}&filter=sellers:{#{seller_id}},#{buy_options}&#{newly_listed}"
-    
+        url = "#{@@browse_api}/item_summary/search?#{query_string}"
+        url = url + "&filter=sellers:{#{seller_id}},buyingOptions:{AUCTION|FIXED_PRICE}" 
+        url = url + "&sort=newlyListed" 
+        url = url + "&offset=0&limit=200" 
+
+        #todo: loop, increase offset
+        #note: "total" is returned in json
+
+
         response = self.make_request(url)
 
         if response.code == '200'
             listings = JSON.parse(response.body)
+
+            listings["itemSummaries"].each do |listing|
+                self.add_ebay_listing(listing)
+            end
+
+
             return listings
         else
             # Handle errors

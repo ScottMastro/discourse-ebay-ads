@@ -21,6 +21,18 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         end
     end
 
+    def random
+
+        if EbayAdPlugin::EbayListing.count > 0
+            random_listing = EbayAdPlugin::EbayListing.order("RANDOM()").first
+            listing_hash = random_listing.attributes
+            listing_hash["epn_id"] = SiteSetting.ebay_epn_id
+            render json: listing_hash
+        else
+            render json: { id: nil }
+        end
+    end
+
     def accounts
 
         ebay_items = []
@@ -29,6 +41,7 @@ class EbayAdPlugin::EbayController < ::ApplicationController
                         .joins(:user)
                         .where(name: 'ebay_username')
         
+        #todo: require minimum trust level/group
         ebay_accounts.each do |account|
             items = EbayAdPlugin::EbayAPI::fetch_listings_by_seller(account.value)
             ebay_items.push(items)
@@ -40,13 +53,8 @@ class EbayAdPlugin::EbayController < ::ApplicationController
     end
     
     def api_calls
-
-        ebay_api_call = EbayAdPlugin::EbayApiCall.find_by(date: Date.today)
-
-
-        render json: {calls: ebay_api_call}
-
-    
+        ebay_api_calls = EbayAdPlugin::EbayApiCall.where(date: Date.today)
+        render json: { calls: ebay_api_calls }
     end
 
 

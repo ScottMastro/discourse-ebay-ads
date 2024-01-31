@@ -1,0 +1,18 @@
+plugins:
+  enable_ebay_ads:
+    default: false
+    client: true
+    
+  ebay_epn_id:
+    default: "5338988822"
+
+  client_id:
+    default: ""
+    client: false
+
+  client_secret:
+    default: ""
+    client: false
+
+  ebay_topic_id:
+    default: ""

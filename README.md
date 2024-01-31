@@ -1,1 +1,1 @@
-# discourse-ebay-ads
+# Discourse Ebay Affiliate Ads Plugin

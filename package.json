@@ -1,0 +1,10 @@
+{
+  "name": "discourse-e4-banner-plugin",
+  "version": "1.0.0",
+  "repository": "https://github.com/ScottMastro/discourse-e4-banner-plugin",
+  "author": "ScottMastro",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-discourse": "^3.1.0"
+  }
+}

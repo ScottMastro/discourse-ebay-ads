@@ -1,0 +1,7 @@
+en:
+  site_settings:
+    enable_ebay_ads: "Turn on the ebay ads"
+    ebay_topic_id: "ID of topic used to source all ebay links to show"
+    client_id: "App ID (Client ID) from eBay API"
+    client_secret: "Cert ID (Client Secret) from eBay API"
+    ebay_epn_id: "ID used to generate EPN links"

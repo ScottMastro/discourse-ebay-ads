@@ -1,0 +1,65 @@
+.ebay-ad-container{
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.affiliate-info{
+  color:#858a8c;
+  font-size:12px;
+}
+
+.ebay-ad-banner{
+  display: flex;
+  border-style: solid;
+  border-color: #858a8c;
+  border-width: 2px;
+  height: 100px;
+  font-family: 'Tahoma', sans-serif;
+  background-color: rgba(128, 128, 128, 0.2); 
+
+}
+
+.ebay-ad-images{
+  display: flex;
+  background-color: black;
+}
+
+.ebay-ad-thumbnail-logo{
+  height: 100px;
+  width: 100px;
+}
+.ebay-ad-thumbnail-img{
+  height: 100px;
+  width: 100px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.ebay-ad-info{
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.ebay-ad-item-info{
+  padding: 10px;
+  flex: 4;
+}
+.ebay-ad-title{
+  font-size: large;
+  font-weight: bold;
+}
+.ebay-ad-price{
+  font-size: small;
+}
+
+.ebay-ad-seller-info{
+  white-space: nowrap;
+  padding: 10px;
+  flex: 1;
+  background-color: rgba(128, 128, 128, 0.1); 
+  border-radius: 2px;
+}
+

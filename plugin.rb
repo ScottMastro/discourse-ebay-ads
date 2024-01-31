@@ -34,8 +34,10 @@ after_initialize do
   EbayAdPlugin::Engine.routes.draw do
     get '/ebay' => 'ebay#index'
     get "/ebay/accounts" => "ebay#accounts"
+    get "/ebay/api_calls" => "ebay#api_calls"
     get "/ebay/ad" => "ebay_ad#ad_data"
 
+    
 
   end
   

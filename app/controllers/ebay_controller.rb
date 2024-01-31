@@ -39,6 +39,16 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         render json: {accounts: ebay_accounts, items: ebay_items}
     end
     
+    def api_calls
+
+        ebay_api_call = EbayAdPlugin::EbayApiCall.find_by(date: Date.today)
+
+
+        render json: {calls: ebay_api_call}
+
+    
+    end
+
 
 
 end

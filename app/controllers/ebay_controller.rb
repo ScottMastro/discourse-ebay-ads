@@ -2,7 +2,7 @@
 
 class EbayAdPlugin::EbayController < ::ApplicationController
     
-    def ad_data
+    def index
 
         if EbayAdPlugin::EbayListing.count > 0
 
@@ -20,4 +20,25 @@ class EbayAdPlugin::EbayController < ::ApplicationController
             render json: { id: nil }
         end
     end
+
+    def accounts
+
+        ebay_items = []
+        ebay_accounts = UserCustomField
+                        .select("user_custom_fields.id, user_custom_fields.user_id, users.username, user_custom_fields.name, user_custom_fields.value, user_custom_fields.created_at, user_custom_fields.updated_at")
+                        .joins(:user)
+                        .where(name: 'ebay_username')
+        
+        ebay_accounts.each do |account|
+            items = EbayAdPlugin::EbayAPI::fetch_listings_by_seller(account.value)
+            ebay_items.push(items)
+        end
+
+
+
+        render json: {accounts: ebay_accounts, items: ebay_items}
+    end
+    
+
+
 end

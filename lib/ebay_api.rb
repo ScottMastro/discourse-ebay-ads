@@ -10,10 +10,16 @@ module EbayAdPlugin::EbayAPI
     @@token_time = Time.now
     @@token_expiry = 0
 
+    @@browse_api = "https://api.ebay.com/buy/browse/v1"
+
     def self.token_expired?
+        if  @@access_token.nil?
+            return true
+        end
         elapsed_time = Time.now - @@token_time
         elapsed_time > @@token_expiry
     end
+
 
 
     def self.update_token()
@@ -41,6 +47,9 @@ module EbayAdPlugin::EbayAPI
         @@token_time = Time.now
         @@token_expiry = response_info["expires_in"]    
 
+        ebay_api_call = EbayAdPlugin::EbayApiCall.find_or_initialize_by(date: Date.today, type: "oauth")
+        ebay_api_call.increment!(:count)
+
     end
     
     def self.add_ebay_listing(item_data)
@@ -64,26 +73,62 @@ module EbayAdPlugin::EbayAPI
         item_data["itemId"]
     end
 
-    def self.lookup_ebay_listing(item_id)
+    def self.make_request(url)
 
         if token_expired?
             update_token()
         end
-
-        url = "https://api.ebay.com/buy/browse/v1/item/get_item_by_legacy_id?legacy_item_id=#{item_id}"
 
         uri = URI(url)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
 
         request = Net::HTTP::Get.new(uri.request_uri)
-        request['Authorization'] = "IAF " + @@access_token
+        request['Authorization'] = "Bearer " + @@access_token
         request['Content-Type'] = 'application/json'
         request['X-EBAY-C-ENDUSERCTX'] = 'contextualLocation=country%3DUS%2Czip%3D19406'
 
-        response = http.request(request)
-        json_item = response.body
-        item_data = JSON.parse(json_item)
-        item_data
+        ebay_api_call = EbayAdPlugin::EbayApiCall.find_or_initialize_by(date: Date.today, type: "api")
+        ebay_api_call.increment!(:count)
+
+        return http.request(request)
+
     end
+
+    def self.lookup_ebay_listing(item_id)
+
+        url = "#{@@browse_api}/item/get_item_by_legacy_id?legacy_item_id=#{item_id}"
+        response = self.make_request(url)
+
+        if response.code == '200'
+            item = JSON.parse(response.body)
+            return item
+        else
+            # Handle errors
+            puts "Error fetching listings: #{response.body}"
+            return response.body
+        end
+    end
+
+
+    def self.fetch_listings_by_seller(seller_id)
+
+        query_string = "q=pokemon"
+        buy_options = "buyingOptions:{AUCTION|FIXED_PRICE}"
+        newly_listed = "sort=newlyListed"
+    
+        url = "#{@@browse_api}/item_summary/search?#{query_string}&filter=sellers:{#{seller_id}},#{buy_options}&#{newly_listed}"
+    
+        response = self.make_request(url)
+
+        if response.code == '200'
+            listings = JSON.parse(response.body)
+            return listings
+        else
+            # Handle errors
+            puts "Error fetching listings: #{response.body}"
+            return response.body
+        end
+    end
+
 end

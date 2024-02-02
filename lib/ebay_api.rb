@@ -3,21 +3,33 @@ require 'uri'
 require 'json'
 require 'base64'
 require 'erb'
+require 'logger'
 
 module EbayAdPlugin::EbayAPI
 
-    @@access_token = nil
-    @@token_time = Time.now
-    @@token_expiry = 0
+    SLEEP_TIME = 0.2 #seconds
+    TOKEN_EXPIRY_BUFFER = 60 # seconds
+    EBAY_API_BASE = "https://api.ebay.com"
+    BROWSE_API = "#{EBAY_API_BASE}/buy/browse/v1"
+    AUTH_API = "#{EBAY_API_BASE}/identity/v1/oauth2/token"
+    SCOPE = "https://api.ebay.com/oauth/api_scope"
 
-    @@browse_api = "https://api.ebay.com/buy/browse/v1"
+    @access_token = nil
+    @token_time = Time.now
+    @token_expiry = 0
+
+    class << self
+        attr_accessor :access_token, :token_time, :token_expiry
+    end
+
+    def self.logger
+        @logger ||= Logger.new($stdout)
+    end
 
     def self.token_expired?
-        if  @@access_token.nil?
-            return true
-        end
-        elapsed_time = Time.now - @@token_time
-        elapsed_time > @@token_expiry
+        return true if @access_token.nil?
+        elapsed_time = Time.now - @token_time
+        elapsed_time > (@token_expiry - TOKEN_EXPIRY_BUFFER)
     end
 
 
@@ -39,25 +51,28 @@ module EbayAdPlugin::EbayAPI
 
         scope = "https://api.ebay.com/oauth/api_scope"
         
-        uri = URI.parse("https://api.ebay.com/identity/v1/oauth2/token")
-        
+        uri = URI.parse(AUTH_API)
+
         header = {"Content-Type": "application/x-www-form-urlencoded"}
         header["Authorization"] = "Basic " + Base64.strict_encode64("#{client_id}:#{client_secret}")
 
+        begin
+            http = Net::HTTP.new(uri.host, uri.port)
+            http.use_ssl = true
+            request = Net::HTTP::Post.new(uri.request_uri, header)
+            request.body = "grant_type=client_credentials&scope=#{ERB::Util.url_encode(SCOPE)}"
 
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-        request = Net::HTTP::Post.new(uri.request_uri, header)
-        request.body = "grant_type=client_credentials&scope=#{ERB::Util.url_encode(scope)}"
+            response = http.request(request)
+            response_info = JSON.parse(response.body)
+            
+            @access_token = response_info["access_token"]
+            @token_time = Time.now
+            @token_expiry = response_info["expires_in"]    
 
-        response = http.request(request)
-        response_info = JSON.parse(response.body)
-        
-        @@access_token = response_info["access_token"]
-        @@token_time = Time.now
-        @@token_expiry = response_info["expires_in"]    
-
-        self.count_call("oauth")
+            count_call("oauth")
+        rescue => e
+            logger.error "Failed to update token: #{e.message}"
+        end
     end
     
     def self.add_ebay_listing(item_data)
@@ -84,30 +99,26 @@ module EbayAdPlugin::EbayAPI
     end
 
     def self.make_request(url)
-
-        if token_expired?
-            update_token()
-        end
+        update_token() if token_expired?
 
         uri = URI(url)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
 
         request = Net::HTTP::Get.new(uri.request_uri)
-        request['Authorization'] = "Bearer " + @@access_token
+        request['Authorization'] = "Bearer " + @access_token
         request['Content-Type'] = 'application/json'
         request['X-EBAY-C-ENDUSERCTX'] = 'contextualLocation=country%3DUS%2Czip%3D19406'
 
-        self.count_call("browse")
+        count_call("browse")
 
         return http.request(request)
-
     end
 
-    def self.lookup_ebay_listing(item_id)
 
-        url = "#{@@browse_api}/item/get_item_by_legacy_id?legacy_item_id=#{item_id}"
-        response = self.make_request(url)
+    def self.lookup_ebay_listing(item_id)
+        url = "#{BROWSE_API}/item/get_item_by_legacy_id?legacy_item_id=#{item_id}"   
+        response = make_request(url)
 
         if response.code == '200'
             item = JSON.parse(response.body)
@@ -120,35 +131,41 @@ module EbayAdPlugin::EbayAPI
     end
 
 
-    def self.fetch_listings_by_seller(seller_id)
+    def self.fetch_listings_by_seller(seller_id, query = "pokemon")
 
-        query_string = "q=pokemon"
-    
-        url = "#{@@browse_api}/item_summary/search?#{query_string}"
-        url = url + "&filter=sellers:{#{seller_id}},buyingOptions:{AUCTION|FIXED_PRICE}" 
-        url = url + "&sort=newlyListed" 
-        url = url + "&offset=0&limit=200" 
+        total_items_fetched = 0
+        total_items_available = 0
+        listings = []
 
-        #todo: loop, increase offset
-        #note: "total" is returned in json
+        loop do
+            url = "#{BROWSE_API}/item_summary/search?q=#{query}"
+            url += "&filter=sellers:{#{seller_id}},buyingOptions:{AUCTION|FIXED_PRICE}"
+            url += "&sort=newlyListed"
+            url += "&offset=#{total_items_fetched}&limit=200"
 
+            response = make_request(url)
 
-        response = self.make_request(url)
+            if response && response.code == '200'
+                response_body = JSON.parse(response.body)
+                total_items_available = response_body["total"].to_i
 
-        if response.code == '200'
-            listings = JSON.parse(response.body)
+                response_body["itemSummaries"].each do |listing|
+                    add_ebay_listing(listing)
+                    listings << listing
+                end
 
-            listings["itemSummaries"].each do |listing|
-                self.add_ebay_listing(listing)
+                total_items_fetched += response_body["itemSummaries"].size
+
+                break if total_items_fetched >= total_items_available
+                sleep SLEEP_TIME
+            else
+                logger.error "Error fetching listings: #{response&.body}"
+                break
             end
-
-
-            return listings
-        else
-            # Handle errors
-            puts "Error fetching listings: #{response.body}"
-            return response.body
         end
+
+        listings
+
     end
 
 end

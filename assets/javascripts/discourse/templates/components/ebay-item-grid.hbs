@@ -1,0 +1,30 @@
+<div class="ebay-item ebay-item-grid">
+
+  <div class="ebay-item-grid-row">
+    <div class="ebay-item-title">
+      <a href="https://www.ebay.com/itm/{{item.legacy_id}}" target="_blank">
+        {{item.title}}
+      </a>
+    </div>
+  </div>
+
+  <div class="ebay-item-grid-row">
+    <div class="ebay-item-image">
+      <img src="{{item.image_url}}" alt="{{item.title}}">
+    </div>
+    <div class="ebay-item-details">
+        <div class="ebay-item-price">${{item.price}} {{item.currency}}</div>
+        <div class="ebay-item-end-date">{{i18n "ebay_ads.ebay_end_date"}}: {{format-date item.end_date}}</div>
+        <div class="ebay-item-seller-details">
+          <div class="ebay-item-location">{{i18n "ebay_ads.ebay_location"}}: {{item.location}}</div>
+          <div class="ebay-item-seller"> {{item.seller}} ({{item.feedback_score}}) {{item.feedback_percent}}%</div>
+        </div>
+    </div>
+  </div> 
+
+  <div class="ebay-item-grid-row">
+    <div class="ebay-item-link">
+      <a href="https://www.ebay.com/itm/{{item.legacy_id}}" target="_blank" class="ebay-item-link-button d-btn btn">{{i18n "ebay_ads.view_on_ebay"}}<span>{{d-icon "fab-ebay"}}</span></a>
+    </div>
+  </div>
+</div>

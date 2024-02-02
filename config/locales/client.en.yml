@@ -1,0 +1,10 @@
+en:
+  js:
+    ebay_ads:
+      ebay_seller: "Seller"
+      ebay_end_date: "End Date"
+      ebay_location: "Location"
+      ebay_epn_disclaimer: "As an eBay Partner, this forum may be compensated if you make a purchase"
+      view_on_ebay: "View on"
+      ebay_search_label: "Search"
+    

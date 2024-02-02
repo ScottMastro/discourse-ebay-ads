@@ -5,7 +5,8 @@ plugins:
     
   ebay_epn_id:
     default: "5338988822"
-
+    client: true
+    
   client_id:
     default: ""
     client: false

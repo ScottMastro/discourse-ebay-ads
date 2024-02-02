@@ -8,4 +8,8 @@ module EbayAdPlugin
     class EbayApiCall < ActiveRecord::Base
       self.table_name = 'ebay_api_calls'
     end
+
+    class EbaySellerBlock < ActiveRecord::Base
+      self.table_name = 'ebay_seller_blocks'
+    end
   end

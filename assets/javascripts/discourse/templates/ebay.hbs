@@ -1,0 +1,62 @@
+{{#if siteSettings.ebay_epn_id}}
+  <div class="ebay-item-disclaimer">{{i18n "ebay_ads.ebay_epn_disclaimer"}}</div>
+  <br>
+{{/if}}
+
+<div class="ebay-search-container">
+<div class="ebay-search-label">{{i18n "ebay_ads.ebay_search_label"}}</div>
+
+  <TextField
+    @value={{this.search_keys}}
+    @placeholderKey="explorer.search_placeholder"
+    @onChange={{this.updateSearch}}
+  />
+
+  {{user-chooser
+    id="search-listings-from"
+    value=searchedTerms.username
+    onChange=(action "onChangeSearchForUsername")
+      options=(hash
+      maximum=1
+      excludeCurrentUser=false
+    )
+  }}
+
+  {{#if this.mode_row }}
+    <DButton
+      @action={{this.switchModeGrid}}
+      @icon="th"
+      class="ebay-button-switch-mode"
+    />
+  {{else}}
+    <DButton
+      @action={{this.switchModeRow}}
+      @icon="list"
+      class="ebay-button-switch-mode"
+    />
+  {{/if}}
+
+</div>
+
+
+<div class="ebay-items-list ebay-items-list-{{if this.mode_row 'row' 'grid'}}">
+
+  {{#each this.ebayListings as |item|}}
+  
+    {{#if this.mode_row }}
+      <EbayItemRow @item={{item}} />
+    {{else}}
+      <EbayItemGrid @item={{item}} />
+    {{/if}}
+
+  {{else}}
+    No eBay items to display.
+  {{/each}}
+
+</div>
+
+<div class="sentinel"></div>
+
+More:{{this.hasMore}}
+Loading: {{this.isLoading}}
+

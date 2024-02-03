@@ -5,3 +5,4 @@ en:
     client_id: "App ID (Client ID) from eBay API"
     client_secret: "Cert ID (Client Secret) from eBay API"
     ebay_epn_id: "ID used to generate EPN links"
+    ebay_seller_allowed_groups: "Allow users in theses groups to show up as eBay sellers"

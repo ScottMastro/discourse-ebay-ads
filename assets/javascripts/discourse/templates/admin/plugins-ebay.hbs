@@ -1,0 +1,128 @@
+<div class="control-group">
+  <label class="control-label">
+    {{i18n "ebay_ads.admin.search_for_user"}}
+  </label>
+  <div class="controls">
+    <UserChooser
+      @id="choose-ebay-user"
+      @value={{this.selectedUser.user.username}}
+      @onChange={{action "onChangeUsername"}}
+      @options={{hash
+        maximum=1
+        excludeCurrentUser=false
+      }}
+    />
+  </div>
+</div>
+
+{{#if this.selectedUser}}
+  {{#if this.selectedUser.ebay_username}}
+  {{else}}
+    {{i18n "ebay_ads.admin.no_ebay_account"}}
+  {{/if}}
+{{/if}}
+
+<hr>
+
+<div class="control-group">
+  <div class="controls">
+    <TextField
+      @value={{this.ebaySeller}}
+      @placeholderKey="ebay_ads.admin.search_for_seller"
+      @id="ebay-seller-search"
+      @onChange={{this.searchForSeller}}
+    />
+    <DButton
+      @action={{this.searchForSeller}}
+      @translatedLabel={{i18n "ebay_ads.admin.search"}}
+      class="btn-primary"
+    />
+  </div>
+  <a href="https://www.ebay.com/usr/{{this.ebaySeller}}" target="_blank">https://www.ebay.com/usr/{{this.ebaySeller}}</a>
+</div>
+
+{{#if this.ebaySellerInfo}}
+
+  <div class="control-group">
+      <DButton
+        @action={{this.dumpListings}}
+        @icon="far-trash-alt"
+        @translatedLabel={{i18n "ebay_ads.admin.dump_listings"}}
+        class="btn-primary btn-danger"
+      />
+
+      {{i18n "ebay_ads.admin.listings"}}: {{this.ebaySellerInfo.listings_count}}
+
+    </div>
+
+  {{#if this.ebaySellerInfo.blocked}}
+
+    <div class="control-group">
+
+      <h3>❌ {{i18n "ebay_ads.admin.user_is_blocked"}}</h3>
+      <TextField
+        @value={{this.ebaySellerInfo.blocked.reason}}
+        @placeholderKey="ebay_ads.admin.no_block_reason"
+        @id="block-reason-text"
+        style="width:80%;pointer-events:none;"
+        disabled="disabled"
+      />
+
+      <DButton
+        @action={{this.unblockSellerSearch}}
+        @translatedLabel={{i18n "ebay_ads.admin.unblock"}}
+        class="btn-primary btn-danger"
+      />
+    </div>
+
+  {{else}}
+    <div class="control-group">
+      <label class="control-label">
+        {{i18n "ebay_ads.admin.block_label"}}
+      </label>
+      <div class="controls">
+        <TextField
+          @value={{this.blockReason}}
+          @placeholderKey="ebay_ads.admin.block_seller_reason"
+          @id="block-reason-text"
+          style="width:80%"
+        />
+
+        <DButton
+          @action={{this.blockSeller}}
+          @translatedLabel={{i18n "ebay_ads.admin.block"}}
+          class="btn-primary btn-danger"
+        />
+      </div>
+    </div>
+  {{/if}}
+{{/if}}
+
+<hr>
+
+<h3>{{i18n "ebay_ads.admin.block_list"}}</h3>
+<div class="scrollable-table">
+  <table>
+    <thead>
+      <tr>
+        <th>{{i18n "ebay_ads.admin.seller"}}</th>
+        <th>{{i18n "ebay_ads.admin.reason"}}</th>
+        <th>{{i18n "ebay_ads.admin.unblock"}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each this.allBlockedSellers as |seller|}}
+        <tr>
+          <td>{{seller.seller}}</td>
+          <td>{{seller.reason}}</td>
+          <td>
+            <DButton 
+              @action={{(fn this.unblockSellerFromTable seller.seller)}}
+              @translatedLabel={{i18n "ebay_ads.admin.unblock"}}
+            />
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

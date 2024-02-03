@@ -18,8 +18,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
             render json: { ebay_listings: [] }
         end
     end
-    
-    
 
     def random
         n = params[:n].to_i 
@@ -34,63 +32,135 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         end
       end
       
-
-    def accounts
-        Jobs.enqueue(:get_seller_listings)
-    end
     
     def info
         accounts = get_all_account_info
-        listing_statistics = calculate_listing_statistics
         api_calls = get_api_calls
 
+        total_listings = EbayAdPlugin::EbayListing.count
+        listings_by_seller = EbayAdPlugin::EbayListing.group(:seller).count
+        listing_statistics = {
+            total_listings: total_listings,
+            listings_by_seller: listings_by_seller
+        }
+
         render json: {
-            accounts: accounts,
             listing_statistics: listing_statistics,
-            api_calls: api_calls
+            api_calls: api_calls,
+            accounts: accounts
         }
     end
 
-    def drop_seller
-        Jobs.enqueue(:drop_seller, seller_name: params[:seller_name])
+    def blocked_info
+        blocked_sellers = EbayAdPlugin::EbaySellerBlock.all
+        render json: {all: blocked_sellers}
+    end
+
+    def user_info
+
+        username = params[:username]
+        user = User.find_by(username: username)
+        ebay_username_field = UserCustomField
+                                .where(name: 'ebay_username', user_id: user.id)
+                                .first
+        
+        if ebay_username_field.nil? || ebay_username_field.value.empty?
+            render json: {user: user, discourse_user: username, ebay_username: nil, blocked: nil}
+            return
+        end
+        ebay_username = ebay_username_field.value
+
+        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: ebay_username)
+
+        render json: {user: user, discourse_user: username, ebay_username: ebay_username, blocked: blocked_seller}
+    end
+
+    def seller_info
+
+        seller_name = params[:seller_name]
+        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
+        listings_count = EbayAdPlugin::EbayListing.where(seller: seller_name).count
+        
+        render json: {ebay_username: seller_name, blocked: blocked_seller, listings_count: listings_count}
+    end
+
+
+    def update_user
+        username = params[:username]
+        user = User.find_by(username: username)
+    
+        if user.nil?
+            render json: {status: "failed", message: "No user with username: #{username}"}
+            return
+        end
+    
+        ebay_username_field = UserCustomField
+                                .where(name: 'ebay_username', user_id: user.id)
+                                .first
+        
+        if ebay_username_field.nil? || ebay_username_field.value.empty?
+            render json: {status: "failed", message: "No eBay account associated with username: #{username}"}
+            return
+        end
+
+        ebay_username = ebay_username_field.value
+
+        if user_meets_criteria?(user, ebay_username)
+                Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
+                render json: {status: "job triggered", message: "Fetching eBay listings.", discourse_user: user.username, ebay_username: ebay_username}
+        else 
+            render json: {status: "failed", message: "User does not meet group/trust criteria or is blocked: #{username}"}
+        end
+    end
+
+    def dump_seller_listings
+        seller_name = params[:seller_name]
+
+        Jobs.enqueue(:dump_seller_listings, seller_name: params[:seller_name])
+        render json: {status: "job triggered", message: "Dropping eBay listings from #{seller_name}"}
     end
 
     def block_seller
         seller_name = params[:seller_name]
         reason = params[:reason] || "No reason given."
 
-        render json: { error: "Seller name is required.", status: :unprocessable_entity } if seller_name.blank?
+        render json: { status: "failed", error: "Seller name is required.", status: :unprocessable_entity } if seller_name.blank?
 
         blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
         if blocked_seller
-            render json: { error: "Seller #{seller_name} has already been blocked. Existing reason: #{blocked_seller.reason}" }
+            render json: { status: "failed", error: "Seller #{seller_name} has already been blocked. Existing reason: #{blocked_seller.reason}" }
             return
         end
 
         EbayAdPlugin::EbaySellerBlock.create!(seller: seller_name, reason: reason)
-        render json: { status: :ok, message: "Seller #{seller_name} has been blocked. Reason: #{reason}" }
-        rescue => e
-            Rails.logger.error "Error blocking seller #{seller_name}: #{e.message}"
-            render json: { error: "Failed to block seller #{seller_name}.", status: :internal_server_error, message: e.message }
+        render json: { status: "ok", message: "Seller #{seller_name} has been blocked. Reason: #{reason}" }
     end
 
     def unblock_seller
         seller_name = params[:seller_name]
-        render json: { error: "Seller name is required.", status: :unprocessable_entity } if seller_name.blank?
+        render json: { status: "failed", error: "Seller name is required.", status: :unprocessable_entity } if seller_name.blank?
 
         blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
         if blocked_seller
             blocked_seller.destroy
-            render json: { status: :ok, message: "Seller #{seller_name} has been unblocked." }
+            render json: { status: "ok", message: "Seller #{seller_name} has been unblocked." }
         else
-            render json: { error: "Seller #{seller_name} is not currently blocked.", status: :not_found }
+            render json: { status: "failed", error: "Seller #{seller_name} is not currently blocked.", status: :not_found }
         end
         rescue => e
             Rails.logger.error "Error unblocking seller #{seller_name}: #{e.message}"
-            render json: { error: "Failed to unblock seller #{seller_name}.", status: :internal_server_error, message: e.message }
+            render json: {status: "failed",  error: "Failed to unblock seller #{seller_name}.", status: :internal_server_error, message: e.message }
     end
 
     private
+
+    def user_meets_criteria?(user, seller_name)
+        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
+        return false if blocked_seller
+                    
+        user.in_any_groups?(SiteSetting.ebay_seller_allowed_groups_map)
+    end
+
 
     def get_all_account_info
         UserCustomField.where(name: 'ebay_username').map do |account|
@@ -100,15 +170,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
               ebay_username: account.value
             }
         end
-    end
-
-    def calculate_listing_statistics
-        total_listings = EbayAdPlugin::EbayListing.count
-        listings_by_seller = EbayAdPlugin::EbayListing.group(:seller).count
-        {
-            total_listings: total_listings,
-            listings_by_seller: listings_by_seller
-        }
     end
 
     def get_api_calls

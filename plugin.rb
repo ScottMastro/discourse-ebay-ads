@@ -33,18 +33,33 @@ after_initialize do
 
   require_relative 'lib/ebay_scraper.rb'
   require_relative 'lib/ebay_api.rb'
+  require_relative 'lib/create_system_post.rb'
+  require_relative 'lib/listing_manager.rb'
 
-  require_relative 'jobs/api_jobs.rb'
+  require_relative 'jobs/dump_seller_listings.rb'
+  require_relative 'jobs/get_seller_listings.rb'
+  require_relative 'jobs/item_lookup.rb'
+
+  add_admin_route 'ebay_ads.admin_title', 'ebay'
+
+  Discourse::Application.routes.append do
+    get '/admin/plugins/ebay' => 'admin/plugins#index', constraints: StaffConstraint.new
+  end
 
   EbayAdPlugin::Engine.routes.draw do
+    
     get '/ebay' => 'ebay#index'
     get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
-    get "/ebay/seller/drop/:seller_name" => "ebay#drop_seller", constraints: StaffConstraint.new
+    get "/ebay/info/blocked" => "ebay#blocked_info", constraints: StaffConstraint.new
+
+    get "/ebay/seller/dump/:seller_name" => "ebay#dump_seller_listings", constraints: StaffConstraint.new
     get "/ebay/seller/block/:seller_name" => "ebay#block_seller", constraints: StaffConstraint.new
     get "/ebay/seller/unblock/:seller_name" => "ebay#unblock_seller", constraints: StaffConstraint.new
+    get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
+    get "/ebay/user/info/:username" => "ebay#user_info", constraints: StaffConstraint.new
+    get "/ebay/seller/info/:seller_name" => "ebay#seller_info", constraints: StaffConstraint.new
 
     get "/ebay/random" => "ebay#random"
-    get "/ebay/accounts" => "ebay#accounts", constraints: StaffConstraint.new
     get "/ebay/ad" => "ebay_ad#ad_data"
 
   end

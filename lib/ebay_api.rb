@@ -74,29 +74,7 @@ module EbayAdPlugin::EbayAPI
             logger.error "Failed to update token: #{e.message}"
         end
     end
-    
-    def self.add_ebay_listing(item_data)
 
-        #todo: add to db in another file? increased modularity
-        puts item_data
-        
-        EbayAdPlugin::EbayListing.create!(
-          item_id:                         item_data["itemId"],
-          legacy_id:                       item_data["legacyItemId"],
-          title:                           item_data["title"],
-          description:                     "",
-          price:                           item_data["price"]["value"].to_d,
-          currency:                        item_data["price"]["currency"],
-          image_url:                       item_data["image"]["imageUrl"],
-          end_date:                        Time.now,
-          location:                        item_data["itemLocation"]["country"],
-          seller:                          item_data["seller"]["username"],
-          feedback_score:                  item_data["seller"]["feedbackScore"].to_i,
-          feedback_percent:                item_data["seller"]["feedbackPercentage"].to_d
-        )
-
-        item_data["itemId"]
-    end
 
     def self.make_request(url)
         update_token() if token_expired?
@@ -150,7 +128,6 @@ module EbayAdPlugin::EbayAPI
                 total_items_available = response_body["total"].to_i
 
                 response_body["itemSummaries"].each do |listing|
-                    add_ebay_listing(listing)
                     listings << listing
                 end
 

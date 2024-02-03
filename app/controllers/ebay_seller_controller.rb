@@ -77,33 +77,29 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
             ebay_username: seller.ebay_username,
             hidden: seller.hidden,
             blocked: seller.blocked,
-            blocked_reason: seller.blocked_reason,
             listings_count: seller.listings_count # Accessed directly thanks to the SQL COUNT(*) AS listings_count
           }
         end
       
         render json: { sellers: sellers_info }
-      end
-      
-      
+      end      
 
     def block_seller
         ebay_username = params[:ebay_username]
-        reason = params[:reason] || ""
 
         seller = EbayAdPlugin::EbaySeller.find_by(ebay_username: ebay_username)
 
         if seller.nil?
-            EbayAdPlugin::EbaySeller.create!(ebay_username: ebay_username, blocked: true, blocked_reason: reason)
-            render json: { status: "ok", message: "Seller #{ebay_username} has been blocked. Reason: #{reason}" }
+            EbayAdPlugin::EbaySeller.create!(ebay_username: ebay_username, blocked: true)
+            render json: { status: "ok", message: "Seller #{ebay_username} has been blocked." }
             return
           elsif seller.blocked
-            render json: { status: "ok", error: "Seller #{ebay_username} has already been blocked. Existing reason: #{seller.blocked_reason}" }
+            render json: { status: "ok", error: "Seller #{ebay_username} has already been blocked." }
             return
           end
 
-          seller.update!(blocked: true, blocked_reason: reason)
-          render json: { status: "ok", message: "Seller #{ebay_username} has been blocked. Reason: #{reason}" }
+          seller.update!(blocked: true)
+          render json: { status: "ok", message: "Seller #{ebay_username} has been blocked." }
     end
 
     def unblock_seller
@@ -114,7 +110,7 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
             render json: { status: "failed", error: "Seller #{ebay_username} is unknown.", status: :not_found }
             return
         elsif seller.blocked
-            seller.update!(blocked: false, blocked_reason: nil)
+            seller.update!(blocked: false)
             render json: { status: "ok", message: "Seller #{ebay_username} has been unblocked." }
             return
         end
@@ -126,19 +122,22 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
         blocked_sellers = EbayAdPlugin::EbaySeller
                             .joins("LEFT JOIN users ON users.id = ebay_sellers.user_id")
                             .where(blocked: true)
-                            .select("ebay_sellers.ebay_username, ebay_sellers.blocked, ebay_sellers.blocked_reason, users.username AS username")
+                            .select("ebay_sellers.ebay_username, ebay_sellers.blocked, users.username AS username")
       
         sellers_info = blocked_sellers.map do |seller|
           {
             username: seller.username,
             ebay_username: seller.ebay_username,
             blocked: seller.blocked,
-            blocked_reason: seller.blocked_reason,
           }
         end
-      
         render json: sellers_info
       end
       
-      
+    def dump_seller_listings
+        ebay_username = params[:ebay_username]
+
+        Jobs.enqueue(:dump_seller_listings, ebay_username: params[:ebay_username])
+        render json: {status: "ok", message: "Dropping eBay listings from #{ebay_username} (job triggered)"}
+    end  
 end

@@ -7,14 +7,9 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 export default class AdminPluginsEbayController extends Controller {
   @tracked allSellers = [];
   @tracked ebaySeller = "";
-  @tracked blockReason = null;
 
   init(){
     super.init(...arguments);
-    this.updateSellerList();
-  }
-
-  updateSellerList(){
     ajax("/ebay/seller/info")
     .then((result) => {
       this.allSellers = result.sellers;
@@ -23,34 +18,93 @@ export default class AdminPluginsEbayController extends Controller {
 
   @action
   addSeller() {
-    if (this.ebaySeller != ""){
-      const encodedSeller = encodeURIComponent(this.ebaySeller);
-      ajax(`/ebay/seller/add/${encodedSeller}`)
-      .then((result) => {
-        updateSellerList();
-      }).catch(popupAjaxError);
+    this._addSeller(this.ebaySeller, false);
+  }
+  
+  @action
+  blockSeller() {
+    this._addSeller(this.ebaySeller, true);
+  }
+
+  _addSeller(ebay_username, blocked) {
+    if (ebay_username !== "") {
+      const encodedSeller = encodeURIComponent(ebay_username);
+      ajax(`/ebay/seller/add/${encodedSeller}.json`)
+        .then((result) => {
+          if (result.status == "ok") {
+            const index = this.allSellers.findIndex(seller => seller.ebay_username === ebay_username);
+            if (index == -1) {
+
+              const newSeller = {
+                username: null,
+                ebay_username: ebay_username,
+                listings_count: 0,
+                blocked: false
+              };
+  
+              this.allSellers.unshift(newSeller);            
+              this.notifyPropertyChange('allSellers');
+            }
+            
+            if (blocked){
+              this._blockSeller(ebay_username);
+            }
+
+          }
+        }).catch(popupAjaxError);
+    }
+  }
+
+  _blockSeller(ebay_username) {
+    if (ebay_username != ""){
+      const encodedUsername = encodeURIComponent(ebay_username);
+      ajax(`/ebay/seller/block/${encodedUsername}.json`)
+        .then((result) => {
+          if(result.status == "ok"){
+            this.allSellers.forEach(seller => {
+              if (seller.ebay_username === ebay_username) {
+                const index = this.allSellers.findIndex(seller => seller.ebay_username === ebay_username);
+                if (index !== -1) {
+                  let modifiedSeller = Object.assign({}, this.allSellers[index]);
+                  modifiedSeller.blocked = true;
+                  this.allSellers.splice(index, 1);
+                  this.allSellers.splice(index, 0, modifiedSeller);
+                  this.notifyPropertyChange('allSellers');
+                }
+              }
+            });
+          }
+        }).catch(popupAjaxError);
+      }
+  }
+  _unblockSeller(ebay_username) {
+    if (ebay_username !== "") {
+      const encodedUsername = encodeURIComponent(ebay_username);
+      ajax(`/ebay/seller/unblock/${encodedUsername}.json`)
+        .then((result) => {
+          if (result.status == "ok") {
+            const index = this.allSellers.findIndex(seller => seller.ebay_username === ebay_username);
+            if (index !== -1) {
+              let modifiedSeller = Object.assign({}, this.allSellers[index]);
+              modifiedSeller.blocked = false;
+              this.allSellers.splice(index, 1);
+              this.allSellers.splice(index, 0, modifiedSeller);
+              this.notifyPropertyChange('allSellers');
+            }
+          }
+        }).catch(popupAjaxError);
     }
   }
 
   @action
-  blockSeller() {
-    if (this.ebaySeller != ""){
-
-      const encodedUsername = encodeURIComponent(this.ebaySeller);
-
-      let reason = "";
-      if (this.blockReason != ""){
-        const encodedBlockReason = encodeURIComponent(this.blockReason);
-        reason = `?reason=${encodedBlockReason}`;
-      }
-
-      ajax(`/ebay/seller/block/${encodedUsername}.json${reason}`)
-        .then((result) => {
-          updateSellerList();
-        }).catch(popupAjaxError);
-      }
+  unblockSellerFromTable(ebay_username) {
+    this._unblockSeller(ebay_username);
   }
-
+  
+  @action
+  blockSellerFromTable(ebay_username) {
+    this._blockSeller(ebay_username)
+  }
 
   @action
   deleteSellerFromTable(ebay_username){
@@ -63,65 +117,24 @@ export default class AdminPluginsEbayController extends Controller {
     }).catch(popupAjaxError);    
   }
 
-  updateBlockedList(){
-    ajax("/ebay/info/blocked")
-    .then((result) => {
-      console.log(result)
-      this.allBlockedSellers = result.all;
-    }).catch(popupAjaxError);
-  }
 
-  updateSellerInfo(ebay_username){
+
+  @action
+  dumpListingsFromTable(ebay_username){
     const encodedSeller = encodeURIComponent(ebay_username);
-    if(seller){
-      ajax(`/ebay/seller/info/${encodedSeller}`)
-      .then((result) => {
-        console.log(result)
-        this.ebaySellerInfo = result;
-
-      }).catch(popupAjaxError);
-    } else{
-      this.ebaySellerInfo = null;
-    }
-  }
-
-  unblockSeller(seller) {
-    const encodedSeller = encodeURIComponent(seller);
-    ajax(`/ebay/seller/unblock/${encodedSeller}.json`)
-      .then((result) => {
-
-        if (result.status != "ok"){
-          console.log("Error when attempting to unblock seller!")
-          console.log(result);
-        }
-        this.updateSellerInfo(this.ebaySeller);
-        this.updateBlockedList();
-
-      }).catch(popupAjaxError);
-  }
-
-  @action
-  unblockSellerSearch() {
-    this.unblockSeller(this.ebaySeller)
-  }
-
-  @action
-  unblockSellerFromTable(seller) {
-    this.unblockSeller(seller)
-  }
-  @action
-  blockSellerFromTable(seller) {
-    this.unblockSeller(seller)
-  }
-  @action
-  dumpListings(){
-    const encodedSeller = encodeURIComponent(this.ebaySeller);
-
     ajax(`/ebay/seller/dump/${encodedSeller}.json`)
       .then((result) => {
-        console.log(result);
+        if (result.status == "ok") {
+          const index = this.allSellers.findIndex(seller => seller.ebay_username === ebay_username);
+          if (index !== -1) {
+            let modifiedSeller = Object.assign({}, this.allSellers[index]);
+            modifiedSeller.listings_count = 0;
+            this.allSellers.splice(index, 1);
+            this.allSellers.splice(index, 0, modifiedSeller);
+            this.notifyPropertyChange('allSellers');
+          }
+        }
 
-        this.ebaySellerInfo.listings_count = 0;
       }).catch(popupAjaxError);
   }
 }

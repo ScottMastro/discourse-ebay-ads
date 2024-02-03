@@ -21,21 +21,10 @@
   <a href="https://www.ebay.com/usr/{{this.ebaySeller}}" target="_blank">https://www.ebay.com/usr/{{this.ebaySeller}}</a>
 </div>
 
-<div class="control-group">
-  <div class="controls">
-    <TextField
-      @value={{this.blockReason}}
-      @placeholderKey="ebay_ads.admin.block_seller_reason"
-      @id="block-reason-text"
-      style="width:80%"
-    />
-  </div>
-</div>
-
 <hr>
 
 <h3>{{i18n "ebay_ads.admin.seller_table"}}</h3>
-<div class="scrollable-table">
+<div class="table">
   <table>
     <thead>
       <tr>
@@ -43,7 +32,6 @@
         <th>{{i18n "ebay_ads.admin.seller"}}</th>
         <th>{{i18n "ebay_ads.admin.listings"}}</th>
         <th>{{i18n "ebay_ads.admin.block"}}</th>
-        <th>{{i18n "ebay_ads.admin.reason"}}</th>
         <th></th>
         <th>{{i18n "ebay_ads.admin.delete"}}</th>
       </tr>
@@ -56,7 +44,7 @@
           <td>
             {{seller.listings_count}}
             <DButton
-              @action={{this.dumpListings}}
+              @action={{(fn this.dumpListingsFromTable seller.ebay_username)}}
               @icon="broom"
               class="btn-primary btn-danger"
             />
@@ -64,7 +52,6 @@
           <td>
             {{#if seller.blocked}} ❌ {{else}} {{/if}}
           </td>
-          <td title="{{seller.blocked_reason}}" class="reason-truncate-text">{{seller.blocked_reason}}</td>
           <td>
             {{#if seller.blocked}}
               <DButton 

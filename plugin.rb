@@ -52,7 +52,6 @@ after_initialize do
     
     get '/ebay' => 'ebay#index'
     get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
-    get "/ebay/seller/dump/:seller_name" => "ebay#dump_seller_listings", constraints: StaffConstraint.new
     get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
     get "/ebay/user/info/:username" => "ebay#user_info", constraints: StaffConstraint.new
     get "/ebay/random" => "ebay#random"
@@ -67,7 +66,7 @@ after_initialize do
     get "/ebay/seller/block/:ebay_username" => "ebay_seller#block_seller", constraints: StaffConstraint.new
     get "/ebay/seller/unblock/:ebay_username" => "ebay_seller#unblock_seller", constraints: StaffConstraint.new
     get "/ebay/seller/blocklist" => "ebay_seller#blocklist", constraints: StaffConstraint.new
-
+    get "/ebay/seller/dump/:ebay_username" => "ebay_seller#dump_seller_listings", constraints: StaffConstraint.new
 
   end
   

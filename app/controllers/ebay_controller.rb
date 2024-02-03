@@ -103,12 +103,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         end
     end
 
-    def dump_seller_listings
-        seller_name = params[:seller_name]
-
-        Jobs.enqueue(:dump_seller_listings, seller_name: params[:seller_name])
-        render json: {status: "job triggered", message: "Dropping eBay listings from #{seller_name}"}
-    end
 
 
     private

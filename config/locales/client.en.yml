@@ -10,22 +10,18 @@ en:
       admin_title: "eBay Ads"
 
       admin:
-        search_for_user: "Search by user"
-        search_for_seller: "eBay username"
-        search: "Search"
-        no_ebay_account: "This user does not have an associated eBay account."
-        listings: "Listings"
-        dump: "Dump"
-        unblock: "Unblock"
+        username_prompt: "eBay username"
+        add: "Add"
         block: "Block"
         block_seller_reason: "Provide reason for blocking."
-        user_is_blocked: "User is blocked! Reason:"
-        block_label: "Block eBay User"
-        block_list: "Full block list"
+        listings: "Listings"
+        unblock: "Unblock"
+        seller_table: "Seller Table"
         no_block_reason: "[none provided]"
         user: "User"
         seller: "Seller"
         reason: "Reason"
+        delete: "Delete"
 
       preferences:
         title: "eBay Advertisements"

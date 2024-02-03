@@ -3,20 +3,36 @@
 class EbayAdPlugin::EbaySellerController < ::ApplicationController
     before_action :ensure_logged_in
 
+    def add_seller
+        username = params[:ebay_username]
+      
+        ebay_seller = EbayAdPlugin::EbaySeller.find_or_initialize_by(ebay_username: username)  
+        if ebay_seller.save
+            render json: { status: "ok", message: 'Ebay seller added successfully.' }
+            return
+        end
+        render json: { status: "failed", message: 'Ebay seller was not added.' }, status: :unprocessable_entity
+    end
+
+    def remove_seller
+        username = params[:ebay_username]
+      
+        ebay_seller = EbayAdPlugin::EbaySeller.find_by(ebay_username: username)
+        if ebay_seller
+            if ebay_seller.destroy
+                render json: { status: "ok", message: 'Ebay seller removed successfully.' }
+            else
+                render json: { status: "failed", message: 'Ebay seller could not be removed.', errors: ebay_seller.errors.full_messages }, status: :unprocessable_entity
+            end
+        else
+            render json: { status: "failed", message: 'Ebay seller not found.' }
+        end
+    end
+
     def update_user_settings
       username = params[:ebay_username]
       hidden = params.fetch(:hidden, false)
       user = current_user
-
-      if username.blank?
-        existing_seller = EbayAdPlugin::EbaySeller.find_by(user_id: user.id)
-        if existing_seller&.destroy
-          render json: { message: 'Ebay seller removed.' }, status: :ok
-        else
-          render json: { message: 'Nothing to do.' }, status: :ok
-        end
-        return
-      end
     
       ebay_seller = EbayAdPlugin::EbaySeller.find_or_initialize_by(user_id: user.id)
       ebay_seller.update(ebay_username: username, hidden: hidden)

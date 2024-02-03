@@ -5,24 +5,62 @@ import { ajax } from 'discourse/lib/ajax';
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
 export default class AdminPluginsEbayController extends Controller {
-  @tracked selectedUser = "";
   @tracked allSellers = [];
-
   @tracked ebaySeller = "";
-  @tracked ebaySellerInfo = null;
-  @tracked allBlockedSellers = [];
+  @tracked blockReason = null;
 
   init(){
     super.init(...arguments);
-    this.updateBlockedList();
+    this.updateSellerList();
+  }
 
+  updateSellerList(){
     ajax("/ebay/seller/info")
     .then((result) => {
-      console.log(result)
       this.allSellers = result.sellers;
     }).catch(popupAjaxError);
-  
-  
+  }
+
+  @action
+  addSeller() {
+    if (this.ebaySeller != ""){
+      const encodedSeller = encodeURIComponent(this.ebaySeller);
+      ajax(`/ebay/seller/add/${encodedSeller}`)
+      .then((result) => {
+        updateSellerList();
+      }).catch(popupAjaxError);
+    }
+  }
+
+  @action
+  blockSeller() {
+    if (this.ebaySeller != ""){
+
+      const encodedUsername = encodeURIComponent(this.ebaySeller);
+
+      let reason = "";
+      if (this.blockReason != ""){
+        const encodedBlockReason = encodeURIComponent(this.blockReason);
+        reason = `?reason=${encodedBlockReason}`;
+      }
+
+      ajax(`/ebay/seller/block/${encodedUsername}.json${reason}`)
+        .then((result) => {
+          updateSellerList();
+        }).catch(popupAjaxError);
+      }
+  }
+
+
+  @action
+  deleteSellerFromTable(ebay_username){
+    const encodedUsername = encodeURIComponent(ebay_username);
+    ajax(`/ebay/seller/remove/${encodedUsername}`)
+    .then((result) => {
+      if(result.status == "ok"){
+        this.allSellers = this.allSellers.filter(seller => seller.ebay_username !== ebay_username);
+      }
+    }).catch(popupAjaxError);    
   }
 
   updateBlockedList(){
@@ -33,8 +71,8 @@ export default class AdminPluginsEbayController extends Controller {
     }).catch(popupAjaxError);
   }
 
-  updateSellerInfo(seller){
-    const encodedSeller = encodeURIComponent(seller);
+  updateSellerInfo(ebay_username){
+    const encodedSeller = encodeURIComponent(ebay_username);
     if(seller){
       ajax(`/ebay/seller/info/${encodedSeller}`)
       .then((result) => {
@@ -63,50 +101,6 @@ export default class AdminPluginsEbayController extends Controller {
   }
 
   @action
-  onChangeUsername(username) {
-    if(username && username.length == 1){
-
-      ajax(`/ebay/user/info/${username}`)
-      .then((result) => {
-        this.selectedUser = result;
-        this.ebaySeller = result.ebay_username;
-
-      }).catch(popupAjaxError);
-  
-    } else{
-      this.selectedUser = "";
-      this.ebaySeller = "";
-    }
-  }
-
-  @action
-  searchForSeller(seller){
-    this.updateSellerInfo(seller);
-  }
-
-  @action
-  blockSeller() {
-    const encodedBlockReason = encodeURIComponent(this.blockReason);
-
-    ajax(`/ebay/seller/block/${this.ebaySeller}.json?reason=${encodedBlockReason}`)
-      .then((result) => {
-        console.log(result);
-
-        if (result.status != "ok"){
-          console.log("Error when attempting to block seller!")
-          console.log(result);
-        } 
-
-        if (result.status == "ok"){
-          this.updateSellerInfo(this.ebaySeller);
-        }
-
-        this.updateBlockedList();
-
-      }).catch(popupAjaxError);
-  }
-
-  @action
   unblockSellerSearch() {
     this.unblockSeller(this.ebaySeller)
   }
@@ -115,7 +109,10 @@ export default class AdminPluginsEbayController extends Controller {
   unblockSellerFromTable(seller) {
     this.unblockSeller(seller)
   }
-
+  @action
+  blockSellerFromTable(seller) {
+    this.unblockSeller(seller)
+  }
   @action
   dumpListings(){
     const encodedSeller = encodeURIComponent(this.ebaySeller);

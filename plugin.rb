@@ -10,6 +10,7 @@
 enabled_site_setting :enable_ebay_ads
 
 register_svg_icon "fab-ebay" if respond_to?(:register_svg_icon)
+register_svg_icon "fa-broom" if respond_to?(:register_svg_icon)
 
 register_asset 'stylesheets/desktop/desktop.scss', :desktop
 register_asset 'stylesheets/mobile/mobile.scss', :mobile
@@ -57,6 +58,8 @@ after_initialize do
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
 
+    get "/ebay/seller/add/:ebay_username" => "ebay_seller#add_seller", constraints: StaffConstraint.new
+    get "/ebay/seller/remove/:ebay_username" => "ebay_seller#remove_seller", constraints: StaffConstraint.new
     get "/ebay/user/update_settings/:ebay_username" => "ebay_seller#update_user_settings"
     get "/ebay/user/settings/:user_id" => "ebay_seller#get_user_settings"
     get "/ebay/seller/info/:ebay_username" => "ebay_seller#seller_info", constraints: StaffConstraint.new

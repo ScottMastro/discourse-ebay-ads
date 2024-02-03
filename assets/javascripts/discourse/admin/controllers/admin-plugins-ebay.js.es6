@@ -6,6 +6,8 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 
 export default class AdminPluginsEbayController extends Controller {
   @tracked selectedUser = "";
+  @tracked allSellers = [];
+
   @tracked ebaySeller = "";
   @tracked ebaySellerInfo = null;
   @tracked allBlockedSellers = [];
@@ -14,6 +16,13 @@ export default class AdminPluginsEbayController extends Controller {
     super.init(...arguments);
     this.updateBlockedList();
 
+    ajax("/ebay/seller/info")
+    .then((result) => {
+      console.log(result)
+      this.allSellers = result.sellers;
+    }).catch(popupAjaxError);
+  
+  
   }
 
   updateBlockedList(){

@@ -105,19 +105,33 @@
   <table>
     <thead>
       <tr>
+        <th>{{i18n "ebay_ads.admin.user"}}</th>
         <th>{{i18n "ebay_ads.admin.seller"}}</th>
+        <th>{{i18n "ebay_ads.admin.listings"}}</th>
         <th>{{i18n "ebay_ads.admin.reason"}}</th>
-        <th>{{i18n "ebay_ads.admin.unblock"}}</th>
+        <th>{{i18n "ebay_ads.admin.block"}}</th>
       </tr>
     </thead>
     <tbody>
-      {{#each this.allBlockedSellers as |seller|}}
+      {{#each this.allSellers as |seller|}}
         <tr>
-          <td>{{seller.seller}}</td>
-          <td>{{seller.reason}}</td>
+          <td>{{seller.username}}</td>
+          <td>{{seller.ebay_username}}</td>
+          <td>
+            {{seller.listings_count}}
+
+            <DButton
+              @action={{this.dumpListings}}
+              @icon="far-trash-alt"
+              @translatedLabel={{i18n "ebay_ads.admin.dump"}}
+              class="btn-primary btn-danger"
+            />
+
+          </td>
+          <td>{{seller.blocked_reason}}</td>
           <td>
             <DButton 
-              @action={{(fn this.unblockSellerFromTable seller.seller)}}
+              @action={{(fn this.unblockSellerFromTable seller.ebay_username)}}
               @translatedLabel={{i18n "ebay_ads.admin.unblock"}}
             />
           </td>

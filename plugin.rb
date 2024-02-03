@@ -28,6 +28,7 @@ after_initialize do
   end
 
   require_relative 'app/controllers/ebay_controller.rb'
+  require_relative 'app/controllers/ebay_seller_controller.rb'
   require_relative 'app/controllers/ebay_ad_controller.rb'
   require_relative 'app/models/ebay_models.rb'
 
@@ -50,17 +51,20 @@ after_initialize do
     
     get '/ebay' => 'ebay#index'
     get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
-    get "/ebay/info/blocked" => "ebay#blocked_info", constraints: StaffConstraint.new
-
     get "/ebay/seller/dump/:seller_name" => "ebay#dump_seller_listings", constraints: StaffConstraint.new
-    get "/ebay/seller/block/:seller_name" => "ebay#block_seller", constraints: StaffConstraint.new
-    get "/ebay/seller/unblock/:seller_name" => "ebay#unblock_seller", constraints: StaffConstraint.new
     get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
     get "/ebay/user/info/:username" => "ebay#user_info", constraints: StaffConstraint.new
-    get "/ebay/seller/info/:seller_name" => "ebay#seller_info", constraints: StaffConstraint.new
-
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
+
+    get "/ebay/user/update_settings/:ebay_username" => "ebay_seller#update_user_settings"
+    get "/ebay/user/settings/:user_id" => "ebay_seller#get_user_settings"
+    get "/ebay/seller/info/:ebay_username" => "ebay_seller#seller_info", constraints: StaffConstraint.new
+    get "/ebay/seller/info" => "ebay_seller#all_seller_info", constraints: StaffConstraint.new
+    get "/ebay/seller/block/:ebay_username" => "ebay_seller#block_seller", constraints: StaffConstraint.new
+    get "/ebay/seller/unblock/:ebay_username" => "ebay_seller#unblock_seller", constraints: StaffConstraint.new
+    get "/ebay/seller/blocklist" => "ebay_seller#blocklist", constraints: StaffConstraint.new
+
 
   end
   
@@ -96,7 +100,6 @@ def get_id_from_post(text)
   match = text.match(/rowid:\s*(.+?)\n/)
   extracted_string = match[1] if match
 end
-
 
 DiscourseEvent.on(:post_destroyed) do |post, opts, user|
   if post.user == Discourse.system_user && post.topic_id == SiteSetting.ebay_topic_id.to_i     

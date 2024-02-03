@@ -51,10 +51,7 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         }
     end
 
-    def blocked_info
-        blocked_sellers = EbayAdPlugin::EbaySellerBlock.all
-        render json: {all: blocked_sellers}
-    end
+
 
     def user_info
 
@@ -75,14 +72,7 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         render json: {user: user, discourse_user: username, ebay_username: ebay_username, blocked: blocked_seller}
     end
 
-    def seller_info
 
-        seller_name = params[:seller_name]
-        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
-        listings_count = EbayAdPlugin::EbayListing.where(seller: seller_name).count
-        
-        render json: {ebay_username: seller_name, blocked: blocked_seller, listings_count: listings_count}
-    end
 
 
     def update_user
@@ -120,37 +110,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         render json: {status: "job triggered", message: "Dropping eBay listings from #{seller_name}"}
     end
 
-    def block_seller
-        seller_name = params[:seller_name]
-        reason = params[:reason] || "No reason given."
-
-        render json: { status: "failed", error: "Seller name is required.", status: :unprocessable_entity } if seller_name.blank?
-
-        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
-        if blocked_seller
-            render json: { status: "failed", error: "Seller #{seller_name} has already been blocked. Existing reason: #{blocked_seller.reason}" }
-            return
-        end
-
-        EbayAdPlugin::EbaySellerBlock.create!(seller: seller_name, reason: reason)
-        render json: { status: "ok", message: "Seller #{seller_name} has been blocked. Reason: #{reason}" }
-    end
-
-    def unblock_seller
-        seller_name = params[:seller_name]
-        render json: { status: "failed", error: "Seller name is required.", status: :unprocessable_entity } if seller_name.blank?
-
-        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
-        if blocked_seller
-            blocked_seller.destroy
-            render json: { status: "ok", message: "Seller #{seller_name} has been unblocked." }
-        else
-            render json: { status: "failed", error: "Seller #{seller_name} is not currently blocked.", status: :not_found }
-        end
-        rescue => e
-            Rails.logger.error "Error unblocking seller #{seller_name}: #{e.message}"
-            render json: {status: "failed",  error: "Failed to unblock seller #{seller_name}.", status: :internal_server_error, message: e.message }
-    end
 
     private
 

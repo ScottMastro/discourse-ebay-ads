@@ -1,0 +1,28 @@
+<h1>{{i18n "ebay_ads.preferences.title"}}</h1>
+
+<div class="control-group">
+  <label class="control-label">{{i18n "ebay_ads.preferences.ebay_username"}}</label>
+  <div class="controls">
+    <label class="text-label">
+      <Input
+        @type="text"
+        class="input-xxlarge"
+        @value={{this.ebayUsername}}
+      />
+    </label>
+    <a href="https://www.ebay.com/usr/{{this.ebayUsername}}" target="_blank">
+      {{d-icon 'link'}} https://www.ebay.com/usr/{{this.ebayUsername}}
+    </a>
+
+    <div class="controls">
+      <label class="checkbox-label">
+        <Input
+          @type="checkbox"
+          @checked={{this.hideListings}}
+        />
+        {{i18n "ebay_ads.preferences.hide_listings"}}
+      </label>
+    </div>
+
+  </div>
+</div>

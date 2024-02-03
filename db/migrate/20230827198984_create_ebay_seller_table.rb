@@ -2,11 +2,13 @@
 
 class CreateEbaySellerTable < ActiveRecord::Migration[6.0]
   def change
-      create_table :ebay_seller do |t|
+      create_table :ebay_sellers do |t|
         t.integer :user_id
-        t.string :ebay_username
+        t.string :ebay_username, null: false, index: { unique: true }
         t.boolean :hidden, default: false
-        
+        t.boolean :blocked, default: false
+        t.string :blocked_reason, default: nil
+
         t.timestamps
       end
     end

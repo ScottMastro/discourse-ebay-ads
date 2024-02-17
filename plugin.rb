@@ -93,7 +93,9 @@ after_initialize do
           next if !user.in_any_groups?(SiteSetting.ebay_seller_allowed_groups_map)
 
           ebay_username = seller.ebay_username
-          Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
+          
+          #todo: run
+          #Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
 
         end
       end

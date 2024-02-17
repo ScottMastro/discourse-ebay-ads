@@ -51,15 +51,18 @@ after_initialize do
   EbayAdPlugin::Engine.routes.draw do
     
     get '/ebay' => 'ebay#index'
+    get '/ebay/search' => 'ebay#search'
     get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
     get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
     get "/ebay/user/info/:username" => "ebay#user_info", constraints: StaffConstraint.new
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
 
+    get "/ebay/seller/custom_add/" => "ebay_seller#add_sellers_by_custom_field", constraints: StaffConstraint.new
     get "/ebay/seller/add/:ebay_username" => "ebay_seller#add_seller", constraints: StaffConstraint.new
     get "/ebay/seller/remove/:ebay_username" => "ebay_seller#remove_seller", constraints: StaffConstraint.new
     get "/ebay/user/update_settings/:ebay_username" => "ebay_seller#update_user_settings"
+    get "/ebay/user/clear_settings/:user_id" => "ebay_seller#clear_user_settings"
     get "/ebay/user/settings/:user_id" => "ebay_seller#get_user_settings"
     get "/ebay/seller/info/:ebay_username" => "ebay_seller#seller_info", constraints: StaffConstraint.new
     get "/ebay/seller/info" => "ebay_seller#all_seller_info", constraints: StaffConstraint.new
@@ -73,6 +76,34 @@ after_initialize do
   Discourse::Application.routes.append do
     mount EbayAdPlugin::Engine, at: "/"
   end
+
+
+after_initialize do
+  module ::Jobs
+    class UpdateEbayListings < ::Jobs::Scheduled
+      every 1.day
+
+      def execute(args)
+        EbayAdPlugin::EbaySeller.find_each do |seller|
+          next if seller.user_id.nil?
+          next if seller.blocked || seller.hidden
+
+          user = User.find_by(id: seller.user_id)
+          next if user.nil?
+          next if !user.in_any_groups?(SiteSetting.ebay_seller_allowed_groups_map)
+
+          ebay_username = seller.ebay_username
+          Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
+
+        end
+      end
+    end
+  end
+end
+
+
+
+
 
   def extract_ebay_urls(text)
     text.scan(/https?:\/\/(?:www\.)?ebay\.[a-z\.]{2,6}(?:\/\S*)?/i)

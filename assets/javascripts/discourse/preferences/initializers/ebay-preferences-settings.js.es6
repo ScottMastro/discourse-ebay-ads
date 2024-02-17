@@ -15,10 +15,18 @@ export default {
           save() {
             this._super(...arguments);
             const ebayUserSettings = getOwner(this).lookup('service:ebay-user-settings');
-            const { ebayUsername, hideListings } = ebayUserSettings;
+            const { discourseId, ebayUsername, hideListings } = ebayUserSettings;
+            console.log(discourseId)
+
             const encodedUsername = encodeURIComponent(ebayUsername);
-            let url = `/ebay/user/update_settings/${encodedUsername}?hidden=${hideListings}`;
+            let url = `/ebay/user/update_settings/${encodedUsername}?user_id=${discourseId}&hidden=${hideListings}`;
+
+            if(ebayUsername === ""){
+              url = `/ebay/user/clear_settings/${discourseId}`;
+            }
+            
             ajax(url).catch(popupAjaxError);
+
           },
         },
       });

@@ -17,26 +17,29 @@ export default class EbayPreferencesSettings extends Component {
       get hideListings() {
         return this.ebayUserSettings.hideListings;
       }
-    
       set hideListings(value) {
         this.ebayUserSettings.hideListings = value;
       }
     
+      get discourseId() {
+        return this.ebayUserSettings.discourseId;
+      }
+      set discourseId(value) {
+        this.ebayUserSettings.discourseId = value;
+      }
+
     constructor() {
       super(...arguments);
       withPluginApi("0.8", (api) => {
 
-        const currentUser = api.getCurrentUser();
-        if (currentUser) {
-            ajax(`/ebay/user/settings/${currentUser.id}`)
-                .then((result) => {
-                    if (result.seller) {
-                        this.ebayUsername = result.seller.ebay_username;
-                        this.hideListings = result.seller.hidden;
-                    }
-                }).catch(popupAjaxError);
-        }
-        
+        this.discourseId = this.args.model.id;
+        ajax(`/ebay/user/settings/${this.discourseId}`)
+            .then((result) => {
+                if (result.seller) {
+                    this.ebayUsername = result.seller.ebay_username;
+                    this.hideListings = result.seller.hidden;
+                }
+            }).catch(popupAjaxError);        
       }); 
 
   }

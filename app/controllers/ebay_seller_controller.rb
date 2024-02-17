@@ -3,6 +3,18 @@
 class EbayAdPlugin::EbaySellerController < ::ApplicationController
     before_action :ensure_logged_in
 
+    def add_sellers_by_custom_field
+      UserCustomField.where(name: 'ebay_username').each do |account|
+        next if account.value.blank?
+    
+        ebay_seller = EbayAdPlugin::EbaySeller.find_or_initialize_by(ebay_username: account.value)
+        ebay_seller.user_id = account.user_id
+        ebay_seller.save
+      end
+    
+      render json: { status: "ok", message: 'Ebay sellers updated.' }
+    end
+
     def add_seller
         username = params[:ebay_username]
       
@@ -31,12 +43,21 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
 
     def update_user_settings
       username = params[:ebay_username]
+      target_user_id = params[:user_id].to_i
       hidden = params.fetch(:hidden, false)
-      user = current_user
-    
+      if current_user.id != target_user_id
+        unless current_user.staff?
+          return render json: { error: 'You are not authorized to perform this action.' }, status: :forbidden
+        end
+      end
+
+      user = User.find_by(id: target_user_id)
+      unless user
+        return render json: { error: 'User not found.' }, status: :not_found
+      end
+
       ebay_seller = EbayAdPlugin::EbaySeller.find_or_initialize_by(user_id: user.id)
       ebay_seller.update(ebay_username: username, hidden: hidden)
-
       if ebay_seller.save
         render json: { message: 'Ebay seller updated successfully.' }, status: :ok
       else
@@ -55,6 +76,22 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
         end    
     end
 
+    def clear_user_settings
+      user_id = params[:user_id]
+    
+      ebay_seller = EbayAdPlugin::EbaySeller.find_by(user_id: user_id)
+      if ebay_seller
+        if ebay_seller.destroy
+          render json: { status: "ok", message: 'Ebay seller removed successfully.' }
+        else
+          render json: { status: "failed", message: 'Ebay seller could not be removed.', errors: ebay_seller.errors.full_messages }
+        end
+      else
+        render json: { status: "failed", message: 'Ebay seller not found.' }
+      end
+    end
+
+    
     def seller_info
         ebay_username = params[:ebay_username]
         seller = EbayAdPlugin::EbaySeller.find_by(ebay_username: ebay_username)

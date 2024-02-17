@@ -7,6 +7,8 @@ en:
       ebay_epn_disclaimer: "As an eBay Partner, this forum may be compensated if you make a purchase"
       view_on_ebay: "View on"
       ebay_search_label: "Search"
+      ebay_search_keywords: "Keywords..."
+
       admin_title: "eBay Ads"
 
       admin:

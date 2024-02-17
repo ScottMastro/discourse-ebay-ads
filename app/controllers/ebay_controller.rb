@@ -19,6 +19,41 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         end
     end
 
+    def search
+        limit = params.fetch(:limit, 100).to_i
+        offset = params.fetch(:offset, 0).to_i
+        search_keys = params[:search_keys]
+        discourse_username = params[:username]
+      
+        listings_query = EbayAdPlugin::EbayListing.joins("INNER JOIN ebay_sellers ON ebay_listings.seller = ebay_sellers.ebay_username")
+      
+        if discourse_username.present?
+          user = User.find_by(username: discourse_username)
+          if user
+            ebay_seller = EbayAdPlugin::EbaySeller.find_by(user_id: user.id)
+            listings_query = listings_query.where(ebay_sellers: { id: ebay_seller.id }) if ebay_seller
+          else
+            listings_query = EbayAdPlugin::EbayListing.none
+          end
+        end
+      
+        if search_keys.present?
+          listings_query = listings_query.where("ebay_listings.title ILIKE :search OR ebay_listings.description LIKE :search", search: "%#{search_keys}%")
+        end
+      
+        total_count = listings_query.count
+      
+        paginated_listings = listings_query.order("RANDOM()").limit(limit).offset(offset)
+        listing_hashes = paginated_listings.map do |listing|
+          listing_hash = listing.attributes
+          listing_hash["epn_id"] = SiteSetting.ebay_epn_id 
+          listing_hash
+        end
+      
+        render json: { ebay_listings: listing_hashes, total_count: total_count }
+    end
+      
+      
     def random
         n = params[:n].to_i 
       
@@ -73,8 +108,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
     end
 
 
-
-
     def update_user
         username = params[:username]
         user = User.find_by(username: username)
@@ -102,28 +135,35 @@ class EbayAdPlugin::EbayController < ::ApplicationController
             render json: {status: "failed", message: "User does not meet group/trust criteria or is blocked: #{username}"}
         end
     end
-
-
-
+    
     private
 
     def user_meets_criteria?(user, seller_name)
-        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: seller_name)
-        return false if blocked_seller
+        ebay_seller = EbayAdPlugin::EbaySeller.find_by(ebay_username: seller_name)
+        return false unless ebay_seller && !ebay_seller.blocked && !ebay_seller.hidden
                     
         user.in_any_groups?(SiteSetting.ebay_seller_allowed_groups_map)
     end
 
 
     def get_all_account_info
-        UserCustomField.where(name: 'ebay_username').map do |account|
-            { 
-              user_id: account.user_id, 
-              username: account.user.username,
-              ebay_username: account.value
-            }
+        account_info = EbayAdPlugin::EbaySeller.find_each.map do |seller|
+            if seller.user_id.nil?
+                next
+            else
+                user = User.find_by(id: seller.user_id)
+                username = user.nil? ? nil : user.username
+                {
+                    user_id: seller.user_id,
+                    username: username,
+                    ebay_username: seller.ebay_username
+                }
+            end
         end
+
+        account_info.compact
     end
+    
 
     def get_api_calls
         EbayAdPlugin::EbayApiCall.select(:date, :count, :call_type)

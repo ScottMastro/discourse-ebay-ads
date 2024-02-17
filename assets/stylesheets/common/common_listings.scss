@@ -1,11 +1,13 @@
-  .ebay-item-disclaimer {
-    font-size: large;
+  .ebay-button-switch-mode{
+    display: none;
+  }
+  
+  .ebay-disclaimer {
     border: 1px solid var(--secondary-medium);
     border-radius: 6px;
     padding: 1em;
-    background-color: var(--tertiary);
+    background-color: var(--blend-primary-secondary-5);
   }
-
 
 .ebay-search-container{
   padding: 1em;
@@ -22,6 +24,10 @@
     top: -0.75em;
     left: 1em;
   }
+
+  #search-listings-keyword{
+    width: 50%;
+  }
 }
 
 .ebay-items-list-grid {
@@ -32,15 +38,25 @@
   align-items: center;
 }
 
+.ebay-item:hover {
+  background-color: var(--secondary);
+  border: 1px solid var(--tertiary);
+  
+  .ebay-item-title {
+    color: var(--tertiary);
+    font-size: normal;
+  }
+
+}
+
 .ebay-item {
   padding: 1em;
   border: 1px solid var(--secondary-medium);
   background-color: var(--blend-primary-secondary-5);
   border-radius: 4px;
   transition: box-shadow 0.3s;
-} .ebay-item-row:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+  position: relative;
+} 
 
 .ebay-item-row {
   margin-bottom: 0.5em;
@@ -51,7 +67,7 @@
   }
 
   .ebay-item-title {
-    font-size: large;
+    font-size: normal;
   }
 }
 
@@ -80,9 +96,8 @@
 
 
 .ebay-item-price {
-  font-size: large;
+  font-size: normal;
   font-weight: bold;
-  color: var(--quaternary);
 }
 
 .ebay-item-seller-details{
@@ -102,16 +117,13 @@
 
 .ebay-item-details {
   overflow: hidden; 
+  color: var(--primary);
 }
 
-.ebay-item-link{
-
-  .ebay-item-link-button{
-    background-color: var(--tertiary);
-  }
-  svg{
-    font-size: xx-large;
-    margin-left: 5px;
-    margin-top: 2px;
-  }
+.ebay-item-disclaimer{
+  color: var(--primary-medium);
+  font-size: x-small;
+  position: absolute;
+  bottom: 1em;
+  right: 1em;
 }

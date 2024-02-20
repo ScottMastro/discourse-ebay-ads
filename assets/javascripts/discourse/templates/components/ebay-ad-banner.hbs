@@ -1,0 +1,42 @@
+  <div class="affiliate-info">
+    ADVERTISEMENT ⓘ
+  </div>
+
+
+{{#if this.model}}
+<div class="ebay-ad-container">
+
+  <a href="https://ebay.com/itm/{{this.model.legacy_id}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001" target="_blank">
+  <div class="ebay-ad-banner">
+    
+    <div class="ebay-ad-images">
+      <img class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/ebay.png">
+      <img class="ebay-ad-thumbnail-img fade-in" src="{{this.model.image_url}}" alt="">
+    </div>
+
+    <div class="ebay-ad-info">
+
+      <div class="ebay-ad-item-info">
+
+        <div class="ebay-ad-title">
+          {{this.model.title}}
+        </div>
+        <div class="ebay-ad-price">
+          {{this.formattedPrice}} {{this.model.currency}}
+        </div>
+      </div>
+
+      <div class="ebay-ad-seller-info">
+        <div class="ebay-ad-seller-info-name">{{this.model.seller}} ({{this.model.feedback_score}})</div> 
+        <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
+      </div>
+      
+    </div>
+  </div>
+</a>
+
+</div>
+
+{{else}}
+<div class="ebay-ad-container"><div class="ebay-ad-banner"></div></div>
+{{/if}}

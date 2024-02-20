@@ -3,6 +3,12 @@
     flex-direction: column;
     padding: 10px;
   }
+
+  .fade-in {
+    animation-name: fadeIn;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+  }  
   
   .affiliate-info{
     color:#858a8c;

@@ -137,4 +137,14 @@ export default class AdminPluginsEbayController extends Controller {
 
       }).catch(popupAjaxError);
   }
+
+  @action
+  fetchListings(username){
+    const encodedUser = encodeURIComponent(username);
+    ajax(`/ebay/user/update/${encodedUser}.json`)
+      .then((result) => {
+        console.log(result)
+      
+      }).catch(popupAjaxError);
+  }
 }

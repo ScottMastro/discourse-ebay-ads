@@ -20,7 +20,6 @@
   </div>
   <a href="https://www.ebay.com/usr/{{this.ebaySeller}}" target="_blank">https://www.ebay.com/usr/{{this.ebaySeller}}</a>
 </div>
-
 <hr>
 
 <h3>{{i18n "ebay_ads.admin.seller_table"}}</h3>
@@ -39,10 +38,20 @@
     <tbody>
       {{#each this.allSellers as |seller|}}
         <tr>
-          <td>{{seller.username}}</td>
-          <td>{{seller.ebay_username}}</td>
+
+          <td><a href="/u/{{seller.username}}/preferences/profile">{{seller.username}}</a></td>
+          <td><a href="https://www.ebay.com/usr/{{seller.ebay_username}}" target="_blank">{{seller.ebay_username}}</a></td>
           <td>
             {{seller.listings_count}}
+
+            {{#if seller.username}}
+              <DButton
+                @action={{(fn this.fetchListings seller.username)}}
+                @icon="sync"
+                class=""
+              />
+            {{/if}}
+
             <DButton
               @action={{(fn this.dumpListingsFromTable seller.ebay_username)}}
               @icon="broom"

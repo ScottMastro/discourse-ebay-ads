@@ -1,8 +1,10 @@
 en:
   site_settings:
-    enable_ebay_ads: "Turn on the ebay ads"
-    ebay_topic_id: "ID of topic used to source all ebay links to show"
+    enable_ebay_ads: "Turn on the eBay ad plugin"
+    show_ebay_ad_banner: "Display eBay ads in banner"
+    ebay_topic_id: "ID of topic used to source all eBay links to show"
     client_id: "App ID (Client ID) from eBay API"
     client_secret: "Cert ID (Client Secret) from eBay API"
     ebay_epn_id: "ID used to generate EPN links"
     ebay_seller_allowed_groups: "Allow users in theses groups to show up as eBay sellers"
+    max_api_calls_per_day: "Maximum number of eBay API calls to make per day"

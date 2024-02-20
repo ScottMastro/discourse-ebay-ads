@@ -38,7 +38,7 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         end
       
         if search_keys.present?
-          listings_query = listings_query.where("ebay_listings.title ILIKE :search OR ebay_listings.description LIKE :search", search: "%#{search_keys}%")
+          listings_query = listings_query.where("ebay_listings.title LIKE :search OR ebay_listings.description LIKE :search", search: "%#{search_keys}%")
         end
       
         total_count = listings_query.count
@@ -86,8 +86,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         }
     end
 
-
-
     def user_info
 
         username = params[:username]
@@ -109,12 +107,19 @@ class EbayAdPlugin::EbayController < ::ApplicationController
 
 
     def update_user
+
+        total_calls_today = EbayAdPlugin::EbayApiCall.where(date: Date.today, call_type: "browse").sum(:count)
+        max_calls_allowed = SiteSetting.max_api_calls_per_day.to_i
+        
+        if total_calls_today >= max_calls_allowed
+            return render json: {status: "failed", message: "Hit max API calls per day."}
+        end
+
         username = params[:username]
         user = User.find_by(username: username)
     
         if user.nil?
-            render json: {status: "failed", message: "No user with username: #{username}"}
-            return
+            return render json: {status: "failed", message: "No user with username: #{username}"}     
         end
     
         ebay_username_field = UserCustomField
@@ -122,8 +127,7 @@ class EbayAdPlugin::EbayController < ::ApplicationController
                                 .first
         
         if ebay_username_field.nil? || ebay_username_field.value.empty?
-            render json: {status: "failed", message: "No eBay account associated with username: #{username}"}
-            return
+            return render json: {status: "failed", message: "No eBay account associated with username: #{username}"}
         end
 
         ebay_username = ebay_username_field.value

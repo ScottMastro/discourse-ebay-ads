@@ -77,6 +77,14 @@ module EbayAdPlugin::EbayAPI
 
 
     def self.make_request(url)
+        total_calls_today = EbayAdPlugin::EbayApiCall.where(date: Date.today, call_type: "browse").sum(:count)
+        max_calls_allowed = SiteSetting.max_api_calls_per_day.to_i
+        
+        if total_calls_today >= max_calls_allowed
+            Rails.logger.warn("Max API calls for #{call_type} reached for today.")
+            return { success: false, error: "Max API calls for browse reached for today." }
+        end
+
         update_token() if token_expired?
 
         uri = URI(url)
@@ -90,26 +98,36 @@ module EbayAdPlugin::EbayAPI
 
         count_call("browse")
 
-        return http.request(request)
+        response = http.request(request)
+        return { success: true, response: response }
     end
 
 
     def self.lookup_ebay_listing(item_id)
         url = "#{BROWSE_API}/item/get_item_by_legacy_id?legacy_item_id=#{item_id}"   
-        response = make_request(url)
+        result = make_request(url)
 
-        if response.code == '200'
-            item = JSON.parse(response.body)
-            return item
+        if result[:success]
+            response = result[:response]
+            if response.code == '200'
+              item = JSON.parse(response.body)
+              return item
+            else
+              # Handle HTTP errors
+              puts "Error fetching listings: #{response.body}"
+              return nil
+            end
         else
-            # Handle errors
-            puts "Error fetching listings: #{response.body}"
-            return response.body
+            # Handle cases where the API call was not made due to reaching the max call limit
+            puts "API call not made: #{result[:error]}"
+            return nil
         end
     end
 
 
     def self.fetch_listings_by_seller(seller_id, query = "pokemon")
+        limit = 200
+        max_offset = 10000-limit
 
         total_items_fetched = 0
         total_items_available = 0
@@ -119,24 +137,32 @@ module EbayAdPlugin::EbayAPI
             url = "#{BROWSE_API}/item_summary/search?q=#{query}"
             url += "&filter=sellers:{#{seller_id}},buyingOptions:{AUCTION|FIXED_PRICE}"
             url += "&sort=newlyListed"
-            url += "&offset=#{total_items_fetched}&limit=200"
+            url += "&offset=#{total_items_fetched}&limit=#{limit}"
 
-            response = make_request(url)
+            result = make_request(url)
 
-            if response && response.code == '200'
-                response_body = JSON.parse(response.body)
-                total_items_available = response_body["total"].to_i
+            if result[:success]
+                response = result[:response]
+                if response.code == '200'
+                    response_body = JSON.parse(response.body)
+                    total_items_available = response_body["total"].to_i
 
-                response_body["itemSummaries"].each do |listing|
-                    listings << listing
+                    response_body["itemSummaries"].each do |listing|
+                        listings << listing
+                    end
+
+                    total_items_fetched += limit
+
+                    break if total_items_fetched >= total_items_available
+                    break if total_items_fetched >= max_offset
+
+                    sleep SLEEP_TIME
+                else
+                    puts "Error fetching listings: #{response&.body}"
+                    break
                 end
-
-                total_items_fetched += response_body["itemSummaries"].size
-
-                break if total_items_fetched >= total_items_available
-                sleep SLEEP_TIME
             else
-                logger.error "Error fetching listings: #{response&.body}"
+                puts "API call not made: #{result[:error]}"
                 break
             end
         end

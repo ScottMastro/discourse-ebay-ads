@@ -1,20 +1,40 @@
 .ebay-ad-container{
   display: flex;
   flex-direction: column;
-  padding: 10px;
+  padding-bottom: 1em;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  animation-name: fadeIn;
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
 }
 
 .affiliate-info{
   color:#858a8c;
   font-size:12px;
+  cursor: default;
 }
 
 .ebay-ad-banner{
+  color:#858a8c;
+
   display: flex;
   border-style: solid;
   border-color: #858a8c;
   border-width: 2px;
   height: 100px;
+  width: 100%;
   font-family: 'Tahoma', sans-serif;
   background-color: rgba(128, 128, 128, 0.2); 
 

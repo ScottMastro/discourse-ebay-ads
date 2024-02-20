@@ -2,7 +2,11 @@ plugins:
   enable_ebay_ads:
     default: false
     client: true
-    
+
+  show_ebay_ad_banner:
+    default: false
+    client: true
+
   ebay_epn_id:
     default: "5338988822"
     client: true
@@ -13,6 +17,10 @@ plugins:
 
   client_secret:
     default: ""
+    client: false
+
+  max_api_calls_per_day:
+    default: 4500
     client: false
 
   ebay_topic_id:

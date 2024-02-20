@@ -30,7 +30,6 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
     def weighted_random_selector
         
         all_weights = fetch_all_weights
-        STDERR.puts all_weights
         sellers = EbayAdPlugin::EbaySeller.where(hidden: false, blocked: false)
         weighted_pool = []
         

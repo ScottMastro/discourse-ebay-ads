@@ -38,12 +38,12 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         end
       
         if search_keys.present?
-          listings_query = listings_query.where("ebay_listings.title LIKE :search OR ebay_listings.description LIKE :search", search: "%#{search_keys}%")
+            listings_query = listings_query.where("ebay_listings.title ILIKE :search OR ebay_listings.description ILIKE :search", search: "%#{search_keys}%")
         end
       
         total_count = listings_query.count
       
-        paginated_listings = listings_query.order("RANDOM()").limit(limit).offset(offset)
+        paginated_listings = listings_query.limit(limit).offset(offset)
         listing_hashes = paginated_listings.map do |listing|
           listing_hash = listing.attributes
           listing_hash["epn_id"] = SiteSetting.ebay_epn_id 

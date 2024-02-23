@@ -86,26 +86,6 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         }
     end
 
-    def user_info
-
-        username = params[:username]
-        user = User.find_by(username: username)
-        ebay_username_field = UserCustomField
-                                .where(name: 'ebay_username', user_id: user.id)
-                                .first
-        
-        if ebay_username_field.nil? || ebay_username_field.value.empty?
-            render json: {user: user, discourse_user: username, ebay_username: nil, blocked: nil}
-            return
-        end
-        ebay_username = ebay_username_field.value
-
-        blocked_seller = EbayAdPlugin::EbaySellerBlock.find_by(seller: ebay_username)
-
-        render json: {user: user, discourse_user: username, ebay_username: ebay_username, blocked: blocked_seller}
-    end
-
-
     def update_user
 
         total_calls_today = EbayAdPlugin::EbayApiCall.where(date: Date.today, call_type: "browse").sum(:count)

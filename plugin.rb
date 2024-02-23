@@ -54,7 +54,6 @@ after_initialize do
     get '/ebay/search' => 'ebay#search'
     get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
     get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
-    get "/ebay/user/info/:username" => "ebay#user_info", constraints: StaffConstraint.new
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
 

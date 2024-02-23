@@ -46,7 +46,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
     
   
     def fetch_all_weights
-        key = "ebay_ad_seller_weights444"
+        key = "ebay_ad_weight"
         all_weights = PluginStore.get("ebay_ad_plugin", key)
       
         if false && all_weights && all_weights[:timestamp] && Time.now.utc.to_i - all_weights[:timestamp].to_i < 6.hours.to_i

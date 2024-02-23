@@ -1,4 +1,6 @@
-<a href="https://www.ebay.com/itm/{{@item.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{@item.epn_id}}&toolid=1001" target="_blank">
+<a href="https://www.ebay.com/itm/{{@item.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{@item.epn_id}}&toolid=1001"
+   onclick={{action @trackEbayClick @item.item_id}} 
+   target="_blank">
 
   <div class="ebay-item ebay-item-row">
     <div class="ebay-item-image">
@@ -15,7 +17,7 @@
     </div>
 
     {{#if siteSettings.ebay_epn_id}}
-      <div class="ebay-item-disclaimer">{{i18n "ebay_ads.ebay_epn_disclaimer"}}</div>
+      <div class="ebay-item-disclaimer">ADVERTISEMENT ⓘ</div>
     {{/if}}
   </div>
 

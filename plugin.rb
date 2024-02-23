@@ -59,6 +59,8 @@ after_initialize do
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
 
+    get "/ebay/adclick/:item_id" => "ebay_ad#ad_click"
+
     get "/ebay/seller/custom_add/" => "ebay_seller#add_sellers_by_custom_field", constraints: StaffConstraint.new
     get "/ebay/seller/add/:ebay_username" => "ebay_seller#add_seller", constraints: StaffConstraint.new
     get "/ebay/seller/remove/:ebay_username" => "ebay_seller#remove_seller", constraints: StaffConstraint.new

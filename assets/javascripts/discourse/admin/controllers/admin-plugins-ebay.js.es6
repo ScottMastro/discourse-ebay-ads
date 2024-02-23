@@ -13,8 +13,6 @@ export default class AdminPluginsEbayController extends Controller {
     ajax("/ebay/seller/info")
     .then((result) => {
       this.allSellers = result.sellers;
-      console.log(result.sellers)
-
     }).catch(popupAjaxError);
 
   }
@@ -147,8 +145,7 @@ export default class AdminPluginsEbayController extends Controller {
     encodedUser = encodedUser.replace(/\./g, '%2E');
     ajax(`/ebay/user/update/${encodedUser}.json`)
       .then((result) => {
-        console.log(result)
-      
+        console.log(result);
       }).catch(popupAjaxError);
   }
 }

@@ -13,18 +13,22 @@ export default class extends Controller {
 
   @tracked mode_row = true;
 
+  @tracked selectedCompany = 'all';
+  @tracked selectedGrade = true;
+
+
   limit = 20;
   offset = 0;
   observer = null;
 
   init() {
     super.init();
-    this.loadEbayListings();
+    this.loadEbayListings(true);
     scheduleOnce('afterRender', this, this.setupObserver); 
    }
 
-  loadEbayListings() {
-    if (this.isLoading || !this.hasMore) return;
+  loadEbayListings(force) {
+    if (!force && (this.isLoading || !this.hasMore)) return;
 
     this.isLoading = true;
     let url = `/ebay/search.json?limit=${this.limit}&offset=${this.offset}`;
@@ -51,15 +55,15 @@ export default class extends Controller {
       this.isLoading = false;
       console.error('Error fetching eBay listings:', error);
     });
-
   }
+
 
   @action
   onChangeSearchForUsername(username){
     this.filtered_username = username;
     this.offset=0;
     this.ebayListings=[];
-    this.loadEbayListings();
+    this.loadEbayListings(true);
   }
 
   @action
@@ -67,7 +71,17 @@ export default class extends Controller {
     this.search_keys = search_text;
     this.offset=0;
     this.ebayListings=[];
-    this.loadEbayListings();
+    this.loadEbayListings(true);
+  }
+
+  @action
+  updateSelectedGrade(){
+
+  }
+  @action
+  updateSelectedCompany(company){
+    this.selectedCompany = company;
+    console.log(this.selectedCompany)
   }
 
   @action
@@ -80,10 +94,20 @@ export default class extends Controller {
     this.mode_row = true;
   }
 
+  @action
+  trackEbayClick(itemId) {
+    const encodedId = encodeURIComponent(itemId);
+    let url = `/ebay/adclick/${encodedId}`;
+    ajax(url).then((result) => { 
+
+    }).catch((error) => {
+      console.error('Click not recorded:', error);
+    });;
+  }
 
   @action
   onScrollToEnd() {
-    this.loadEbayListings();
+    this.loadEbayListings(false);
   }
 
   setupObserver() {

@@ -12,4 +12,8 @@ module EbayAdPlugin
   class EbaySeller < ActiveRecord::Base
     self.table_name = 'ebay_sellers'
   end
+
+  class EbayClick < ActiveRecord::Base
+    self.table_name = 'ebay_clicks'
+  end
 end

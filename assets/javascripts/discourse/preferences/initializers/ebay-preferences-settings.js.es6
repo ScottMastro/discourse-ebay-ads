@@ -16,7 +16,6 @@ export default {
             this._super(...arguments);
             const ebayUserSettings = getOwner(this).lookup('service:ebay-user-settings');
             const { discourseId, ebayUsername, hideListings } = ebayUserSettings;
-            console.log(discourseId)
 
             const encodedUsername = encodeURIComponent(ebayUsername);
             let url = `/ebay/user/update_settings/${encodedUsername}?user_id=${discourseId}&hidden=${hideListings}`;

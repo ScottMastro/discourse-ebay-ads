@@ -38,8 +38,6 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
             weight.times { weighted_pool << seller }
             
         end
-        
-
         weighted_pool.sample
     end
     
@@ -63,8 +61,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
           weights[seller.user_id.to_s] = weight
         end
         weights
-      end
-      
+    end
     
     def calculate_weight_for(seller)
         has_listings = EbayAdPlugin::EbayListing.where(seller: seller.ebay_username).exists?
@@ -82,4 +79,12 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         return weight + additional_weight
     end
 
+    def ad_click
+      item_id = params[:item_id]
+      user_id = current_user ? current_user.id : -1
+      EbayAdPlugin::EbayClick.create(user_id: user_id, item_id: item_id)
+      STDERR.puts item_id
+
+      return render json: { message: 'Click recorded' }
+    end
 end

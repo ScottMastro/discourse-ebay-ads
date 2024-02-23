@@ -12,6 +12,8 @@ enabled_site_setting :enable_ebay_ads
 register_svg_icon "fab-ebay" if respond_to?(:register_svg_icon)
 register_svg_icon "fa-broom" if respond_to?(:register_svg_icon)
 
+register_asset 'stylesheets/common/common.scss'
+
 register_asset 'stylesheets/desktop/desktop.scss', :desktop
 register_asset 'stylesheets/mobile/mobile.scss', :mobile
 

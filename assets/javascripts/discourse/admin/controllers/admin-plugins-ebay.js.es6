@@ -13,7 +13,10 @@ export default class AdminPluginsEbayController extends Controller {
     ajax("/ebay/seller/info")
     .then((result) => {
       this.allSellers = result.sellers;
+      console.log(result.sellers)
+
     }).catch(popupAjaxError);
+
   }
 
   @action
@@ -116,8 +119,6 @@ export default class AdminPluginsEbayController extends Controller {
       }
     }).catch(popupAjaxError);    
   }
-
-
 
   @action
   dumpListingsFromTable(ebay_username){

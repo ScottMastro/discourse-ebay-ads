@@ -27,40 +27,27 @@
   <table>
     <thead>
       <tr>
-        <th>{{i18n "ebay_ads.admin.user"}}</th>
         <th>{{i18n "ebay_ads.admin.seller"}}</th>
-        <th>{{i18n "ebay_ads.admin.listings"}}</th>
-        <th>{{i18n "ebay_ads.admin.block"}}</th>
+        <th>{{i18n "ebay_ads.admin.updated"}}</th>
         <th></th>
-        <th>{{i18n "ebay_ads.admin.delete"}}</th>
+        <th>{{i18n "ebay_ads.admin.listings"}}</th>
       </tr>
     </thead>
+
+    {{#if this.allSellers}}
+
     <tbody>
       {{#each this.allSellers as |seller|}}
         <tr>
-
-          <td><a href="/u/{{seller.username}}/preferences/profile">{{seller.username}}</a></td>
-          <td><a href="https://www.ebay.com/usr/{{seller.ebay_username}}" target="_blank">{{seller.ebay_username}}</a></td>
           <td>
-            {{seller.listings_count}}
+            <a href="/u/{{seller.username}}/preferences/profile">{{seller.username}}</a>
+            <br>{{#if seller.blocked}} ❌ {{else}} {{/if}}
 
-            {{#if seller.username}}
-              <DButton
-                @action={{(fn this.fetchListings seller.username)}}
-                @icon="sync"
-                class=""
-              />
-            {{/if}}
-
-            <DButton
-              @action={{(fn this.dumpListingsFromTable seller.ebay_username)}}
-              @icon="broom"
-              class="btn-primary btn-danger"
-            />
+            <a href="https://www.ebay.com/usr/{{seller.ebay_username}}" target="_blank">
+                <span class="truncate-text">{{seller.ebay_username}}</span>
+            </a>
           </td>
-          <td>
-            {{#if seller.blocked}} ❌ {{else}} {{/if}}
-          </td>
+          <td>{{format-date seller.last_update}}</td>
           <td>
             {{#if seller.blocked}}
               <DButton 
@@ -74,8 +61,6 @@
                 @icon="ban"
               />
             {{/if}}
-          </td>
-          <td>
             <DButton 
               @action={{(fn this.deleteSellerFromTable seller.ebay_username)}}
               @translatedLabel={{i18n "ebay_ads.admin.delete"}}
@@ -83,8 +68,36 @@
               @icon="far-trash-alt"
             />
           </td>
+          <td>
+            {{seller.listings_count}}
+          </td>
+          <td>
+
+            {{#if seller.username}}
+              <DButton
+                @action={{(fn this.fetchListings seller.username)}}
+                @translatedLabel={{i18n "ebay_ads.admin.update"}}
+                @icon="sync"
+                class=""
+              />
+            {{/if}}
+
+            <DButton
+              @action={{(fn this.dumpListingsFromTable seller.ebay_username)}}
+              @icon="broom"
+              @translatedLabel={{i18n "ebay_ads.admin.clear"}}
+              class="btn-primary btn-danger"
+            />
+
+
+          </td>
         </tr>
       {{/each}}
     </tbody>
+
+    {{else}}
+      <div class="spinner"></div>
+    {{/if}}
+
   </table>
 </div>

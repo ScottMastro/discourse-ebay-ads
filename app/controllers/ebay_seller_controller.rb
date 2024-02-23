@@ -105,16 +105,18 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
           (SELECT COUNT(*) FROM ebay_listings WHERE ebay_listings.seller = ebay_sellers.ebay_username) AS listings_count
           FROM ebay_sellers
           LEFT JOIN users ON users.id = ebay_sellers.user_id
+          ORDER BY ebay_sellers.updated_at DESC
         SQL
       
         sellers_info = EbayAdPlugin::EbaySeller.find_by_sql(sql).map do |seller|
           {
             user_id: seller.user_id,
-            username: seller.user_username, # Accessed directly thanks to the SQL alias
+            username: seller.user_username,
             ebay_username: seller.ebay_username,
             hidden: seller.hidden,
             blocked: seller.blocked,
-            listings_count: seller.listings_count # Accessed directly thanks to the SQL COUNT(*) AS listings_count
+            listings_count: seller.listings_count,
+            last_update: seller.updated_at
           }
         end
       

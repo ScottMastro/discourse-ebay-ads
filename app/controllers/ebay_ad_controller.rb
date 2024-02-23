@@ -25,7 +25,6 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
           render json: { error: "No listings available." }, status: :not_found
         end
       end
-      
 
     def weighted_random_selector
         
@@ -44,7 +43,6 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         weighted_pool.sample
     end
     
-  
     def fetch_all_weights
         key = "ebay_ad_weight"
         all_weights = PluginStore.get("ebay_ad_plugin", key)

@@ -20,10 +20,12 @@ en:
         unblock: "Unblock"
         seller_table: "Seller Table"
         no_block_reason: "[none provided]"
-        user: "User"
         seller: "Seller"
+        updated: "Updated"
         reason: "Reason"
         delete: "Delete"
+        update: "Update"
+        clear: "Clear"
 
       preferences:
         title: "eBay Advertisements"

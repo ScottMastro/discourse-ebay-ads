@@ -49,7 +49,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         key = "ebay_ad_weight"
         all_weights = PluginStore.get("ebay_ad_plugin", key)
       
-        if false && all_weights && all_weights[:timestamp] && Time.now.utc.to_i - all_weights[:timestamp].to_i < 6.hours.to_i
+        if all_weights && all_weights[:timestamp] && Time.now.utc.to_i - all_weights[:timestamp].to_i < 6.hours.to_i
           return all_weights[:data]
         else
           all_weights_data = calculate_all_weights
@@ -79,7 +79,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         total_time_read_last_month = UserVisit.where(user_id: seller.user_id)
                                               .where("visited_at >= ?", 1.month.ago.to_date)
                                               .sum(:time_read)
-        weight = total_time_read_last_month > 0 ? 1 : 1
+        weight = total_time_read_last_month > 0 ? 1 : 0
         additional_weight = [total_time_read_last_month / 3600, 100].min 
         return weight + additional_weight
     end

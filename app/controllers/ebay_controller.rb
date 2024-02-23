@@ -122,15 +122,13 @@ class EbayAdPlugin::EbayController < ::ApplicationController
             return render json: {status: "failed", message: "No user with username: #{username}"}     
         end
     
-        ebay_username_field = UserCustomField
-                                .where(name: 'ebay_username', user_id: user.id)
-                                .first
-        
-        if ebay_username_field.nil? || ebay_username_field.value.empty?
+        seller = EbayAdPlugin::EbaySeller.find_by(user_id: user.id)
+    
+        if seller.nil? || seller.ebay_username.blank?
             return render json: {status: "failed", message: "No eBay account associated with username: #{username}"}
         end
 
-        ebay_username = ebay_username_field.value
+        ebay_username = seller.ebay_username
 
         if user_meets_criteria?(user, ebay_username)
                 Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)

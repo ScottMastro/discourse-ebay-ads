@@ -3,15 +3,15 @@
   </div>
 
 
-{{#if this.model}}
 <div class="ebay-ad-container">
+{{#if this.model}}
 
   <a href="https://ebay.com/itm/{{this.model.legacy_id}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001" target="_blank">
   <div class="ebay-ad-banner">
     
     <div class="ebay-ad-images">
-      <img class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/ebay.png">
-      <img class="ebay-ad-thumbnail-img fade-in" src="{{this.model.image_url}}" alt="">
+      <img class="ebay-ad-thumbnail-logo fade-in-logo" src="/plugins/discourse-ebay-ads/images/ebay.png">
+      <img class="ebay-ad-thumbnail-img fade-in-image" src="{{this.model.image_url}}" alt="">
     </div>
 
     <div class="ebay-ad-info">
@@ -34,9 +34,5 @@
     </div>
   </div>
 </a>
-
-</div>
-
-{{else}}
-<div class="ebay-ad-container"><div class="ebay-ad-banner"></div></div>
 {{/if}}
+</div>

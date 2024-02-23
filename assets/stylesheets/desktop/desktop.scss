@@ -13,10 +13,16 @@
   }
 }
 
-.fade-in {
+.fade-in-image {
   opacity: 0;
   animation-name: fadeIn;
-  animation-duration: 2s;
+  animation-duration: 5s;
+  animation-fill-mode: forwards;
+}
+.fade-in-logo {
+  opacity: 0;
+  animation-name: fadeIn;
+  animation-duration: 1s;
   animation-fill-mode: forwards;
 }
 

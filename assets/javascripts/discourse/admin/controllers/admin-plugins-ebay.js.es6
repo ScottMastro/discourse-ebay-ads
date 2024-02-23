@@ -140,7 +140,10 @@ export default class AdminPluginsEbayController extends Controller {
 
   @action
   fetchListings(username){
-    const encodedUser = encodeURIComponent(username);
+
+    let encodedUser = encodeURIComponent(username);
+
+    encodedUser = encodedUser.replace(/\./g, '%2E');
     ajax(`/ebay/user/update/${encodedUser}.json`)
       .then((result) => {
         console.log(result)

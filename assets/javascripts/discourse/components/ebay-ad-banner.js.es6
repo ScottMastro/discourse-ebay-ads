@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from "@glimmer/tracking";
 import { ajax } from 'discourse/lib/ajax';
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { action } from "@ember/object"; 
 
 export default class EbayAdBanner extends Component {
   @tracked model = null;
@@ -25,5 +26,16 @@ export default class EbayAdBanner extends Component {
     } catch (error) {
       popupAjaxError(error);
     }
+  }
+
+  @action
+  trackEbayClick(itemId) {
+    const encodedId = encodeURIComponent(itemId);
+    let url = `/ebay/adclick/${encodedId}`;
+    ajax(url).then((result) => { 
+
+    }).catch((error) => {
+      console.error('Click not recorded:', error);
+    });
   }
 }

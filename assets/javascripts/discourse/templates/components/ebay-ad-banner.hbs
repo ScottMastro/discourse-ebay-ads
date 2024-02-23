@@ -6,7 +6,10 @@
 <div class="ebay-ad-container">
 {{#if this.model}}
 
-  <a href="https://ebay.com/itm/{{this.model.legacy_id}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001" target="_blank">
+  <a href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
+    onclick={{action this.trackEbayClick this.model.item_id}} 
+    target="_blank">
+
   <div class="ebay-ad-banner">
     
     <div class="ebay-ad-images">

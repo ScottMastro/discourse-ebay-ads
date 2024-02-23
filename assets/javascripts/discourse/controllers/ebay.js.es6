@@ -102,7 +102,7 @@ export default class extends Controller {
 
     }).catch((error) => {
       console.error('Click not recorded:', error);
-    });;
+    });
   }
 
   @action

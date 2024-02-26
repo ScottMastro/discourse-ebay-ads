@@ -1,0 +1,135 @@
+.advertisement-info{
+    color:#858a8c;
+    font-size: small;
+    cursor: default;
+    position: relative;
+    width: 100%;
+
+    .all-listings-link{
+        position: absolute;
+        right: 0;
+        color:#858a8c !important;
+    }
+}
+
+.ebay-ad-container{
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1em;
+    width: 100%;
+    height: 100px;
+}
+  
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in-image {
+    opacity: 0;
+    animation-name: fadeIn;
+    animation-duration: 5s;
+    animation-fill-mode: forwards;
+}
+
+.ebay-ad-flex{
+    display: flex;
+    column-gap: 1em;
+    align-items: center;
+    height: 100px;
+    width: 100%;
+    color:#858a8c !important;
+}
+
+.ebay-ad-banner{
+    border-style: solid;
+    border-color: rgba(128, 128, 128, 0.6);
+    border-width: 2px;
+    font-family: 'Tahoma', sans-serif;
+    background-color: rgba(128, 128, 128, 0.2);
+}
+
+.ebay-ad-item-info{
+    flex: 3;
+
+    .ebay-ad-info-details{
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+    }
+}
+
+.ebay-ad-title{
+    font-size: large;
+}
+
+.ebay-ad-image{
+    height: 100%;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    background-color: black;
+
+    .ebay-ad-thumbnail-img{
+        height: 100%;
+        width: 100px;
+        object-fit: contain;
+        object-position: center;
+    }
+}
+.ebay-ad-price{
+    font-size: small;
+}
+
+.ebay-ad-clickables-container{
+    flex: 2;
+}
+.ebay-ad-clickable{
+    flex: 1;
+    padding: 5px;
+    background-color: rgba(128, 128, 128, 0.2);
+    border-radius: 1px;
+    border-style: 2px;
+    border-style: solid;
+    border-color: rgba(128, 128, 128, 0);;
+    color:#858a8c !important;
+    position: relative;
+}
+
+.ebay-ad-clickable:hover{
+    border-style: solid;
+    border-color: rgba(128, 128, 128, 0.4);
+}
+
+.ebay-ad-avatar{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+}
+
+.ebay-ad-logo{
+    display: flex;
+    align-items:center;
+    height: 25px;
+    img{
+        height: 80%;
+    }
+}
+
+.ebay-ad-seller-info-name{
+    display: flex;
+    column-gap: 3px;
+}
+
+.ebay-ad-filler{
+    width: 10px;
+    height: 100%;
+}

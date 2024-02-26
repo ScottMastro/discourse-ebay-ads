@@ -23,6 +23,7 @@ export default class EbayAdBanner extends Component {
     try {
       const result = await ajax("/ebay/ad");
       this.model = result;
+      console.log(result)
       this.setupImpressionWatcher();
     } catch (error) {
       popupAjaxError(error);

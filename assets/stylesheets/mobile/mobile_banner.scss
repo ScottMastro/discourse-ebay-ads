@@ -1,0 +1,48 @@
+.ebay-ad-title{
+    font-size: small;
+}
+
+.ebay-ad-flex{
+  column-gap: 0.5em;
+}
+
+.ebay-ad-seller-feedback{
+  display: none;
+}
+.ebay-ad-seller-info-percent{
+  display: none;
+}
+.ebay-ad-avatar{
+  display: none;
+}
+.ebay-ad-seller-info-title{
+  display: none;
+}
+.ebay-ad-filler{
+  display: none;
+}
+
+.ebay-ad-clickables-container{
+  flex: 1.5 !important;
+  flex-direction: column;
+  row-gap: 0.5em;
+  justify-content: center;
+}
+.ebay-ad-clickable{
+  width: 90%;
+  align-items: center;
+  max-height: 20px;
+  display: flex;
+}
+.ebay-ad-logo{
+  flex: 1;
+}
+.ebay-ad-seller-info-name{
+  flex: 1;
+  font-size: small;
+}
+
+.ebay-ad-logo{
+  height: 20px !important;
+}
+

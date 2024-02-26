@@ -7,7 +7,7 @@ require 'logger'
 
 module EbayAdPlugin::EbayAPI
 
-    SLEEP_TIME = 0.2 #seconds
+    SLEEP_TIME = 1 #seconds
     TOKEN_EXPIRY_BUFFER = 60 # seconds
     EBAY_API_BASE = "https://api.ebay.com"
     BROWSE_API = "#{EBAY_API_BASE}/buy/browse/v1"
@@ -81,7 +81,7 @@ module EbayAdPlugin::EbayAPI
         max_calls_allowed = SiteSetting.max_api_calls_per_day.to_i
         
         if total_calls_today >= max_calls_allowed
-            Rails.logger.warn("Max API calls for #{call_type} reached for today.")
+            STDERR.puts "Max eBay API calls for browse reached for today."
             return { success: false, error: "Max API calls for browse reached for today." }
         end
 
@@ -138,18 +138,30 @@ module EbayAdPlugin::EbayAPI
             url += "&filter=sellers:{#{seller_id}},buyingOptions:{AUCTION|FIXED_PRICE}"
             url += "&sort=newlyListed"
             url += "&offset=#{total_items_fetched}&limit=#{limit}"
-
             result = make_request(url)
 
             if result[:success]
                 response = result[:response]
+
                 if response.code == '200'
                     response_body = JSON.parse(response.body)
-                    total_items_available = response_body["total"].to_i
+                    #STDERR.puts seller_id, "total", response_body["total"]
 
-                    response_body["itemSummaries"].each do |listing|
-                        listings << listing
+                    total_items_available = response_body["total"].to_i
+                    
+                    new_listings_count = 0
+                    if response_body["itemSummaries"]
+                        response_body["itemSummaries"].each do |listing|
+                            if listing["seller"] && listing["seller"]["username"].downcase == seller_id.downcase
+                                listings << listing
+                                new_listings_count += 1
+                            end
+                        end
                     end
+
+                    # if seller's username is invalid,
+                    # no listing seller names should match
+                    break if new_listings_count == 0
 
                     total_items_fetched += limit
 
@@ -158,11 +170,11 @@ module EbayAdPlugin::EbayAPI
 
                     sleep SLEEP_TIME
                 else
-                    puts "Error fetching listings: #{response&.body}"
+                    STDERR.puts "Error fetching listings: #{response&.body}"
                     break
                 end
             else
-                puts "API call not made: #{result[:error]}"
+                STDERR.puts "API call not made: #{result[:error]}"
                 break
             end
         end

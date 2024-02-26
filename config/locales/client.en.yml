@@ -11,6 +11,10 @@ en:
       select_grade: "Select Grade"
 
       admin_title: "eBay Ads"
+      advertisement: "ADVERTISEMENT"
+
+      banner:
+        all_listings: "See all listings on the forum →"
 
       admin:
         username_prompt: "eBay username"

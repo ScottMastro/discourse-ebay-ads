@@ -14,10 +14,11 @@ register_svg_icon "fa-broom" if respond_to?(:register_svg_icon)
 
 register_asset 'stylesheets/common/common.scss'
 
-register_asset 'stylesheets/desktop/desktop.scss', :desktop
-register_asset 'stylesheets/mobile/mobile.scss', :mobile
-
 register_asset 'stylesheets/common/common_listings.scss'
+register_asset 'stylesheets/common/common_banner.scss'
+
+register_asset 'stylesheets/mobile/mobile_listings.scss', :mobile
+register_asset 'stylesheets/mobile/mobile_banner.scss', :mobile
 
 after_initialize do
 
@@ -70,6 +71,7 @@ after_initialize do
     get "/ebay/user/settings/:user_id" => "ebay_seller#get_user_settings"
     get "/ebay/seller/info/:ebay_username" => "ebay_seller#seller_info", constraints: StaffConstraint.new
     get "/ebay/seller/info" => "ebay_seller#all_seller_info", constraints: StaffConstraint.new
+    
     get "/ebay/seller/block/:ebay_username" => "ebay_seller#block_seller", constraints: StaffConstraint.new
     get "/ebay/seller/unblock/:ebay_username" => "ebay_seller#unblock_seller", constraints: StaffConstraint.new
     get "/ebay/seller/blocklist" => "ebay_seller#blocklist", constraints: StaffConstraint.new
@@ -81,8 +83,6 @@ after_initialize do
     mount EbayAdPlugin::Engine, at: "/"
   end
 
-
-after_initialize do
   module ::Jobs
     class UpdateEbayListings < ::Jobs::Scheduled
       every 1.day
@@ -98,18 +98,11 @@ after_initialize do
 
           ebay_username = seller.ebay_username
           
-          #todo: run
-          #Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
-
+          Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
         end
       end
     end
   end
-end
-
-
-
-
 
   def extract_ebay_urls(text)
     text.scan(/https?:\/\/(?:www\.)?ebay\.[a-z\.]{2,6}(?:\/\S*)?/i)
@@ -133,6 +126,7 @@ end
       end
     end
   end
+
 end
 
 def get_id_from_post(text)

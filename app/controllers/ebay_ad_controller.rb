@@ -19,6 +19,19 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
           end
       
           listing_hash = random_listing.attributes
+      
+          discourse_user = User.find_by(id: random_seller.user_id)
+          if discourse_user
+            user_info = {
+              username: discourse_user.username,
+              name: discourse_user.name,
+              title: discourse_user.title,
+              avatar: discourse_user.avatar_template,
+            }
+      
+            listing_hash["seller_info"] = user_info
+          end
+
           listing_hash["epn_id"] = SiteSetting.ebay_epn_id
           render json: listing_hash
         else
@@ -75,7 +88,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
                                               .where("visited_at >= ?", 1.month.ago.to_date)
                                               .sum(:time_read)
         weight = total_time_read_last_month > 0 ? 1 : 0
-        additional_weight = [total_time_read_last_month / 3600, 100].min 
+        additional_weight = 0 #[total_time_read_last_month / 3600, 100].min 
         return weight + additional_weight
     end
 

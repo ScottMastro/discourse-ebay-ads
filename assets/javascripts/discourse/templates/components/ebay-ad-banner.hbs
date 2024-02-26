@@ -1,42 +1,67 @@
-  <div class="affiliate-info">
-    ADVERTISEMENT ⓘ
-  </div>
+  <div class="advertisement-info">
+    {{i18n "ebay_ads.advertisement"}} ⓘ
 
+    <a class="all-listings-link" href="/ebay"> {{i18n "ebay_ads.banner.all_listings"}} </a>
+  </div>
 
 <div class="ebay-ad-container">
   <div class="impression-observer"></div>
   {{#if this.model}}
 
-    <a href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
-      onclick={{action this.trackEbayClick}} 
-      target="_blank">
-
-    <div class="ebay-ad-banner">
+    <div class="ebay-ad-banner ebay-ad-flex">
       
-      <div class="ebay-ad-images">
-        <img class="ebay-ad-thumbnail-logo fade-in-logo" src="/plugins/discourse-ebay-ads/images/ebay.png">
-        <img class="ebay-ad-thumbnail-img fade-in-image" src="{{this.model.image_url}}" alt="">
-      </div>
 
-      <div class="ebay-ad-info">
+      <a class="ebay-ad-item-info ebay-ad-flex" href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
+        onclick={{action this.trackEbayClick}} 
+        target="_blank">
 
-        <div class="ebay-ad-item-info">
+        <div class="ebay-ad-image">
+          <img class="ebay-ad-thumbnail-img fade-in-image" src="{{this.model.image_url}}" alt="">
+        </div>
 
+        <div class="ebay-ad-info-details">
           <div class="ebay-ad-title">
             {{this.model.title}}
           </div>
-          <div class="ebay-ad-price">
-            {{this.formattedPrice}} {{this.model.currency}}
-          </div>
-        </div>
 
-        <div class="ebay-ad-seller-info">
-          <div class="ebay-ad-seller-info-name">{{this.model.seller}} ({{this.model.feedback_score}})</div> 
-          <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
+          {{#if false}}
+            <div class="ebay-ad-price">
+              {{this.formattedPrice}} {{this.model.currency}}
+            </div>
+          {{/if}}
+
         </div>
-        
+      </a>
+
+      <div class="ebay-ad-clickables-container ebay-ad-flex">
+        <a class="ebay-ad-clickable" href="https://www.ebay.com/usr/{{this.model.seller}}?mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
+          onclick={{action this.trackEbayClick}} 
+          target="_blank">
+
+          <div class="ebay-ad-logo">
+            <img alt="ebay" class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/ebay_grey.svg">
+          </div>
+          <div class="ebay-ad-seller-info-name">{{this.model.seller}} <div class="ebay-ad-seller-feedback">({{this.model.feedback_score}})</div></div> 
+          <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
+        </a>
+
+        {{#if this.model.seller_info}}
+
+          <a class="ebay-ad-clickable" href="/u/{{this.model.seller_info.username}}">
+            <div class="ebay-ad-logo">
+              <img alt="efour" class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/efour_grey.svg">
+            </div>
+            <div class="ebay-ad-seller-info-name">{{this.model.seller_info.username}}</div> 
+            <div class="ebay-ad-seller-info-title">{{this.model.seller_info.title}}</div> 
+            <img class="ebay-ad-avatar" src={{this.model.seller_info.avatar}}>
+
+          </a>
+
+        {{/if}}
       </div>
+
+    <div class="ebay-ad-filler"></div>
+
     </div>
-  </a>
   {{/if}}
 </div>

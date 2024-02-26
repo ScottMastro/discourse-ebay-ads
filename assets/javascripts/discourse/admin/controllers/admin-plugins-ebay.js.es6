@@ -110,6 +110,7 @@ export default class AdminPluginsEbayController extends Controller {
   @action
   deleteSellerFromTable(ebay_username){
     const encodedUsername = encodeURIComponent(ebay_username);
+    encodedUsername = encodedUsername.replace(/\./g, '%2E');
     ajax(`/ebay/seller/remove/${encodedUsername}`)
     .then((result) => {
       if(result.status == "ok"){
@@ -120,7 +121,8 @@ export default class AdminPluginsEbayController extends Controller {
 
   @action
   dumpListingsFromTable(ebay_username){
-    const encodedSeller = encodeURIComponent(ebay_username);
+    let encodedSeller = encodeURIComponent(ebay_username);
+    encodedSeller = encodedSeller.replace(/\./g, '%2E');
     ajax(`/ebay/seller/dump/${encodedSeller}.json`)
       .then((result) => {
         if (result.status == "ok") {
@@ -141,7 +143,6 @@ export default class AdminPluginsEbayController extends Controller {
   fetchListings(username){
 
     let encodedUser = encodeURIComponent(username);
-
     encodedUser = encodedUser.replace(/\./g, '%2E');
     ajax(`/ebay/user/update/${encodedUser}.json`)
       .then((result) => {

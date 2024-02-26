@@ -1,3 +1,3 @@
 export default function () {
-  this.route("ebay", { path:"/ebay" });
+  this.route("ebay-search", { path:"/ebay" });
 }

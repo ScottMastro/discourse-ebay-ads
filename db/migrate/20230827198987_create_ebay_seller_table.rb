@@ -2,6 +2,7 @@
 
 class CreateEbaySellerTable < ActiveRecord::Migration[6.0]
   def change
+    unless table_exists?(:ebay_sellers)
       create_table :ebay_sellers do |t|
         t.integer :user_id
         t.string :ebay_username, null: false, index: { unique: true }
@@ -12,3 +13,4 @@ class CreateEbaySellerTable < ActiveRecord::Migration[6.0]
       end
     end
   end
+end

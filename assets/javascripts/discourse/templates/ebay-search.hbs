@@ -1,0 +1,119 @@
+<div class="ebay-search-container">
+<div class="ebay-search-label">{{i18n "ebay_ads.ebay_search_label"}}</div>
+
+    {{d-icon "search"}}
+    <TextField
+      @id="search-listings-keyword"
+      @value={{this.search_keys}}
+      @placeholderKey="ebay_ads.ebay_search_keywords"
+      @onChange={{this.updateSearch}}
+    />
+    
+    <br>
+
+    {{d-icon "user"}}
+    <UserChooser
+      @id="search-listings-from"
+      @value={{this.searchedTerms.username}}
+      @onChange={{action "onChangeSearchForUsername"}}
+      @options={{hash
+        maximum=1
+        excludeCurrentUser=false
+      }}
+    />
+
+  <div class="sorting-section">
+    {{select-kit
+      headerTitle="Sort By"
+      content=(array
+        (hash value="default" name=(i18n "ebay_ads.sort_default"))
+        (hash value="price" name=(i18n "ebay_ads.sort_price"))
+        (hash value="recently_listed" name=(i18n "ebay_ads.sort_recently_listed"))
+      )
+      value=this.sortBy
+      onChange=(action (mut this.sortBy))
+    }}
+  </div>
+
+<div class="filter-grading-company">
+  <label>
+    {{input type="radio" value="all" checked=(eq this.selectedCompany "all") name="gradingCompany" onChange=(action this.updateSelectedCompany "all")}}
+    All
+  </label>
+  <label>
+    {{input type="radio" value="Raw" checked=(eq this.selectedCompany "Raw") name="gradingCompany" onChange=(action this.updateSelectedCompany "Raw")}}
+    Raw
+  </label>
+  <label>
+    {{input type="radio" value="PSA" checked=(eq this.selectedCompany "PSA") name="gradingCompany" onChange=(action this.updateSelectedCompany "PSA")}}
+    PSA
+  </label>
+  <label>
+    {{input type="radio" value="CGC" checked=(eq this.selectedCompany "CGC") name="gradingCompany" onChange=(action this.updateSelectedCompany "CGC")}}
+    CGC
+  </label>
+  <label>
+    {{input type="radio" value="BGS" checked=(eq this.selectedCompany "BGS") name="gradingCompany" onChange=(action this.updateSelectedCompany "BGS")}}
+    BGS
+  </label>
+  <label>
+    {{input type="radio" value="SGC" checked=(eq this.selectedCompany "SGC") name="gradingCompany" onChange=(action this.updateSelectedCompany "SGC")}}
+    SGC
+  </label>
+</div>
+
+
+  <div class="filter-grade">
+    <select onchange={{action "updateSelectedGrade" value="target.value"}}>
+      <option value="">{{i18n "ebay_ads.select_grade"}}</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+  </div>
+
+  {{#if this.mode_row }}
+    <DButton
+      @action={{this.switchModeGrid}}
+      @icon="th"
+      class="ebay-button-switch-mode"
+    />
+  {{else}}
+    <DButton
+      @action={{this.switchModeRow}}
+      @icon="list"
+      class="ebay-button-switch-mode"
+    />
+  {{/if}}
+
+</div>
+
+{{#if siteSettings.ebay_epn_id}}
+  <div class="ebay-disclaimer">{{i18n "ebay_ads.ebay_epn_disclaimer"}}</div>
+  <br>
+{{/if}}
+
+<div id="listings-container" class="ebay-items-list ebay-items-list-{{if this.mode_row 'row' 'grid'}}">
+
+  {{#each this.ebayListings as |item|}}
+  
+    {{#if this.mode_row }}
+      <EbayItemRow @item={{item}} @trackEbayClick={{this.trackEbayClick}}/>
+    {{else}}
+      <EbayItemGrid @item={{item}} @trackEbayClick={{this.trackEbayClick}}/>
+    {{/if}}
+
+  {{else}}
+    No eBay items to display.
+  {{/each}}
+
+</div>
+
+<div class="ebay-search-scroll-sentinel"></div>

@@ -16,4 +16,13 @@ module EbayAdPlugin
   class EbayClick < ActiveRecord::Base
     self.table_name = 'ebay_clicks'
   end
+
+  class EbaySearchImpression < ActiveRecord::Base
+    self.table_name = 'ebay_search_impressions'
+  end
+
+  class EbayBannerImpression < ActiveRecord::Base
+    self.table_name = 'ebay_banner_impressions'
+  end
+
 end

@@ -4,38 +4,39 @@
 
 
 <div class="ebay-ad-container">
-{{#if this.model}}
+  <div class="impression-observer"></div>
+  {{#if this.model}}
 
-  <a href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
-    onclick={{action this.trackEbayClick this.model.item_id}} 
-    target="_blank">
+    <a href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
+      onclick={{action this.trackEbayClick}} 
+      target="_blank">
 
-  <div class="ebay-ad-banner">
-    
-    <div class="ebay-ad-images">
-      <img class="ebay-ad-thumbnail-logo fade-in-logo" src="/plugins/discourse-ebay-ads/images/ebay.png">
-      <img class="ebay-ad-thumbnail-img fade-in-image" src="{{this.model.image_url}}" alt="">
-    </div>
-
-    <div class="ebay-ad-info">
-
-      <div class="ebay-ad-item-info">
-
-        <div class="ebay-ad-title">
-          {{this.model.title}}
-        </div>
-        <div class="ebay-ad-price">
-          {{this.formattedPrice}} {{this.model.currency}}
-        </div>
-      </div>
-
-      <div class="ebay-ad-seller-info">
-        <div class="ebay-ad-seller-info-name">{{this.model.seller}} ({{this.model.feedback_score}})</div> 
-        <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
-      </div>
+    <div class="ebay-ad-banner">
       
+      <div class="ebay-ad-images">
+        <img class="ebay-ad-thumbnail-logo fade-in-logo" src="/plugins/discourse-ebay-ads/images/ebay.png">
+        <img class="ebay-ad-thumbnail-img fade-in-image" src="{{this.model.image_url}}" alt="">
+      </div>
+
+      <div class="ebay-ad-info">
+
+        <div class="ebay-ad-item-info">
+
+          <div class="ebay-ad-title">
+            {{this.model.title}}
+          </div>
+          <div class="ebay-ad-price">
+            {{this.formattedPrice}} {{this.model.currency}}
+          </div>
+        </div>
+
+        <div class="ebay-ad-seller-info">
+          <div class="ebay-ad-seller-info-name">{{this.model.seller}} ({{this.model.feedback_score}})</div> 
+          <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
+        </div>
+        
+      </div>
     </div>
-  </div>
-</a>
-{{/if}}
+  </a>
+  {{/if}}
 </div>

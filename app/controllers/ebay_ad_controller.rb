@@ -81,10 +81,27 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
 
     def ad_click
       item_id = params[:item_id]
+      banner_click = params.fetch(:banner, 'false') == 'true'
       user_id = current_user ? current_user.id : -1
-      EbayAdPlugin::EbayClick.create(user_id: user_id, item_id: item_id)
-      STDERR.puts item_id
+      EbayAdPlugin::EbayClick.create(user_id: user_id, item_id: item_id, banner_click: banner_click)
 
       return render json: { message: 'Click recorded' }
+    end
+
+    def ad_impression
+      item_ids = params[:item_ids].split('&')
+      banner_impression = params.fetch(:banner, 'false') == 'true'
+      user_id = current_user ? current_user.id : -1
+
+      item_ids.each do |item_id|
+        if banner_impression
+          EbayAdPlugin::EbayBannerImpression.create(user_id: user_id, item_id: item_id)
+        else
+          search_impression = EbayAdPlugin::EbaySearchImpression.find_or_create_by(item_id: item_id)
+          search_impression.increment!(:count)
+        end
+      end 
+
+      return render json: { message: "Impression(s) recorded" }    
     end
 end

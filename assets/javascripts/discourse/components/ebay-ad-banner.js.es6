@@ -23,19 +23,49 @@ export default class EbayAdBanner extends Component {
     try {
       const result = await ajax("/ebay/ad");
       this.model = result;
+      this.setupImpressionWatcher();
     } catch (error) {
       popupAjaxError(error);
     }
   }
 
   @action
-  trackEbayClick(itemId) {
-    const encodedId = encodeURIComponent(itemId);
-    let url = `/ebay/adclick/${encodedId}`;
+  trackEbayClick() {
+    const encodedId = encodeURIComponent(this.model.item_id);
+    let url = `/ebay/adclick/${encodedId}?banner=true`;
     ajax(url).then((result) => { 
 
     }).catch((error) => {
       console.error('Click not recorded:', error);
     });
   }
+
+  trackEbayImpression() {
+    const encodedId = encodeURIComponent(this.model.item_id);
+    let url = `/ebay/adimpression/${encodedId}?banner=true`;
+    ajax(url).then((result) => { 
+
+    }).catch((error) => {
+      console.error('Impression not recorded:', error);
+    });
+  }
+
+  setupImpressionWatcher() {
+    let options = {root: null, rootMargin: '0px', threshold: 1.0 };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        this.trackEbayImpression();
+        observer.disconnect();
+      }
+    }, options);
+
+    const impression = document.querySelector('.impression-observer');
+    if (!impression) {
+      console.error('Impression sentinel element not found.');
+    } else {
+      observer.observe(impression);
+    }
+  }
+
 }

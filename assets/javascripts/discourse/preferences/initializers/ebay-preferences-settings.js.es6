@@ -18,6 +18,8 @@ export default {
             const { discourseId, ebayUsername, hideListings } = ebayUserSettings;
 
             const encodedUsername = encodeURIComponent(ebayUsername);
+            encodedUsername = encodedUsername.replace(/\./g, '%2E');
+        
             let url = `/ebay/user/update_settings/${encodedUsername}?user_id=${discourseId}&hidden=${hideListings}`;
 
             if(ebayUsername === ""){

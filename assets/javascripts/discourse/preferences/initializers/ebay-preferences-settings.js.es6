@@ -17,7 +17,8 @@ export default {
             const ebayUserSettings = getOwner(this).lookup('service:ebay-user-settings');
             const { discourseId, ebayUsername, hideListings } = ebayUserSettings;
 
-            let encodedUsername = encodeURIComponent(ebayUsername);
+            const uname = ebayUsername.toLowerCase(); 
+            let encodedUsername = encodeURIComponent(uname);
             encodedUsername = encodedUsername.replace(/\./g, '%2E');
         
             let url = `/ebay/user/update_settings/${encodedUsername}?user_id=${discourseId}&hidden=${hideListings}`;

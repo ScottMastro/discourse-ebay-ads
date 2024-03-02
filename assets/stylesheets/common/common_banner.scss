@@ -59,6 +59,7 @@
     .ebay-ad-info-details{
         display: flex;
         overflow: hidden;
+        max-height: 100px;
         flex-direction: column;
     }
 }
@@ -87,6 +88,8 @@
 
 .ebay-ad-clickables-container{
     flex: 2;
+    height: 65px;
+    overflow: hidden;
 }
 .ebay-ad-clickable{
     flex: 1;

@@ -6,6 +6,7 @@ import { scheduleOnce } from '@ember/runloop';
 
 export default class extends Controller {
   @tracked ebayListings = [];
+  @tracked totalCount = 0;
   @tracked impressionList = [];
 
   @tracked isLoading = false;
@@ -44,13 +45,12 @@ export default class extends Controller {
       url = url + "&username="+encodeURIComponent(this.filtered_username);
     }
     
-    console.log(url);
-
     ajax(url).then((result) => {
       if (result.ebay_listings.length < this.limit) {
         this.hasMore = false;
       }
-
+      
+      this.totalCount = result.total_count;
       this.ebayListings = [...this.ebayListings, ...result.ebay_listings];
       this.offset += this.limit;
       this.isLoading = false;

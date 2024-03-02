@@ -25,27 +25,31 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         search_keys = params[:search_keys]
         discourse_username = params[:username]
       
-        listings_query = EbayAdPlugin::EbayListing.joins("INNER JOIN ebay_sellers ON ebay_listings.seller = ebay_sellers.ebay_username")
+        base_query = EbayAdPlugin::EbayListing.joins("INNER JOIN ebay_sellers ON ebay_listings.seller = ebay_sellers.ebay_username")
       
         if discourse_username.present?
           user = User.find_by(username: discourse_username)
           if user
             ebay_seller = EbayAdPlugin::EbaySeller.find_by(user_id: user.id)
-            listings_query = listings_query.where(ebay_sellers: { id: ebay_seller.id }) if ebay_seller
+            base_query = base_query.where(ebay_sellers: { id: ebay_seller.id }) if ebay_seller
           else
-            listings_query = EbayAdPlugin::EbayListing.none
+            base_query = EbayAdPlugin::EbayListing.none
           end
         end
       
         if search_keys.present?
-            listings_query = listings_query.where("ebay_listings.title ILIKE :search OR ebay_listings.description ILIKE :search", search: "%#{search_keys}%")
-        else
-            listings_query = listings_query.order("RANDOM()")
+            base_query = base_query.where("ebay_listings.title ILIKE :search OR ebay_listings.description ILIKE :search", search: "%#{search_keys}%")
         end
       
-        total_count = listings_query.count
-      
-        date_seed = Date.today.to_s.hash
+        unique_item_ids = base_query.select(:item_id).distinct.pluck(:item_id)
+
+        if search_keys.blank?
+            listings_query = EbayAdPlugin::EbayListing.where(item_id: unique_item_ids).order("RANDOM()")
+        else
+            listings_query = EbayAdPlugin::EbayListing.where(item_id: unique_item_ids)
+        end
+
+        total_count = unique_item_ids.size
 
         paginated_listings = listings_query.limit(limit).offset(offset)
         listing_hashes = paginated_listings.map do |listing|
@@ -59,7 +63,7 @@ class EbayAdPlugin::EbayController < ::ApplicationController
       
       
     def random
-        n = params[:n].to_i 
+        n = params[:n].to_i
       
         if EbayAdPlugin::EbayListing.count > 0
           random_listings = EbayAdPlugin::EbayListing.order("RANDOM()").limit(n)

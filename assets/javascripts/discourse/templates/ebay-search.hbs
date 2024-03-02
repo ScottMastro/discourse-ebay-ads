@@ -105,7 +105,7 @@
 {{/if}}
 
 <div id="listings-container" class="ebay-items-list ebay-items-list-{{if this.mode_row 'row' 'grid'}}">
-
+  {{i18n "ebay_ads.total_results"}} {{this.totalCount}}
   {{#each this.ebayListings as |item|}}
   
     {{#if this.mode_row }}

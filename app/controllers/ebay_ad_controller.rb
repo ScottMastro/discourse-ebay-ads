@@ -6,7 +6,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         if EbayAdPlugin::EbayListing.count > 0
           random_seller = weighted_random_selector
           if random_seller.nil?
-            render json: { error: "No seller found." }, status: :not_found
+            render json: { error: "No seller found." }
             return
           end
       
@@ -14,7 +14,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
       
           # Check if a listing was successfully selected for the seller
           if random_listing.nil?
-            render json: { error: "No listing found for selected seller." }, status: :not_found
+            render json: { error: "No listing found for selected seller." }
             return
           end
       
@@ -35,7 +35,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
           listing_hash["epn_id"] = SiteSetting.ebay_epn_id
           render json: listing_hash
         else
-          render json: { error: "No listings available." }, status: :not_found
+          render json: { error: "No listings available." }
         end
       end
 

@@ -26,23 +26,26 @@
   flex: 1 !important;
   flex-direction: column;
   row-gap: 0.5em;
-  justify-content: center
+  justify-content: center;
+  height: 100px !important;
+  overflow: visible !important;
 }
 .ebay-ad-clickable{
   flex: 1;
   width: 80%;
   display: flex;
   flex-direction: column;
-  max-height: 20px;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
 }
 .ebay-ad-logo{
   flex: 1;
-  min-height: 20px !important;
-  height: 20px !important;
-  margin-top: -0.6em;
+  min-height: 15px !important;
+  height: 15px !important;
 
 }
 .ebay-ad-seller-info-name{
   flex: 1;
-  font-size: small;
+  font-size: x-small;
 }

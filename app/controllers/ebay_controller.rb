@@ -43,7 +43,9 @@ class EbayAdPlugin::EbayController < ::ApplicationController
       
         total_count = listings_query.count
       
-        paginated_listings = listings_query.limit(limit).offset(offset)
+        date_seed = Date.today.to_s.hash
+
+        paginated_listings = listings_query.order("RANDOM()").limit(limit).offset(offset)
         listing_hashes = paginated_listings.map do |listing|
           listing_hash = listing.attributes
           listing_hash["epn_id"] = SiteSetting.ebay_epn_id 

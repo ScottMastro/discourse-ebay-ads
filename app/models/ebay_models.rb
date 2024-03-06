@@ -25,4 +25,7 @@ module EbayAdPlugin
     self.table_name = 'ebay_banner_impressions'
   end
 
+  class EbayVote < ActiveRecord::Base
+    self.table_name = 'ebay_votes'
+  end
 end

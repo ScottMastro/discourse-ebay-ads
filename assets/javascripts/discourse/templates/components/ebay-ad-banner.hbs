@@ -9,7 +9,6 @@
   {{#if this.model}}
 
     <div class="ebay-ad-banner ebay-ad-flex">
-      
 
       <a class="ebay-ad-item-info ebay-ad-flex" href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
         onclick={{action this.trackEbayClick}} 
@@ -60,8 +59,20 @@
         {{/if}}
       </div>
 
-    <div class="ebay-ad-filler"></div>
+      <div class="vote-div">
+        <DButton
+          @action={{(fn this.likeAd)}}
+          @icon="{{if (eq this.voteStatus 1) 'heart' 'far-heart'}}"
+          class="vote-button vote-like-button {{if (eq this.voteStatus 1) 'vote-up-cast' 'no-vote-cast'}}"
+        />
+        <DButton
+          @action={{(fn this.dislikeAd)}}
+          @icon="{{if (eq this.voteStatus -1) 'times-circle' 'times'}}"
+          class="vote-button vote-dislike-button {{if (eq this.voteStatus -1) 'vote-down-cast' 'no-vote-cast'}}"
+        />
+      </div>
 
     </div>
+
   {{/if}}
 </div>

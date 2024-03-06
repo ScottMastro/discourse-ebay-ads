@@ -11,6 +11,8 @@ enabled_site_setting :enable_ebay_ads
 
 register_svg_icon "fab-ebay" if respond_to?(:register_svg_icon)
 register_svg_icon "fa-broom" if respond_to?(:register_svg_icon)
+register_svg_icon "fa-circle-xmark" if respond_to?(:register_svg_icon)
+register_svg_icon "far-circle-xmark" if respond_to?(:register_svg_icon)
 
 register_asset 'stylesheets/common/common.scss'
 
@@ -62,6 +64,8 @@ after_initialize do
 
     get "/ebay/adclick/:item_id" => "ebay_ad#ad_click"
     get "/ebay/adimpression/:item_ids" => "ebay_ad#ad_impression"
+
+    get "/ebay/vote/:item_id" => "ebay_ad#vote"
 
     get "/ebay/seller/custom_add/" => "ebay_seller#add_sellers_by_custom_field", constraints: StaffConstraint.new
     get "/ebay/seller/add/:ebay_username" => "ebay_seller#add_seller", constraints: StaffConstraint.new

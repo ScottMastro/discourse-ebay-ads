@@ -20,6 +20,14 @@
     height: 100px;
 }
 
+.vote-div{
+    flex: 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+    padding-right: 10px;
+}
+
 .ebay-ad-flex{
     display: flex;
     column-gap: 1em;
@@ -118,7 +126,20 @@
     column-gap: 3px;
 }
 
-.ebay-ad-filler{
-    width: 10px;
-    height: 100%;
+.no-vote-cast{
+    background: none !important;
+}
+
+.vote-up-cast{
+    background: var(--secondary) !important;
+    .d-icon{
+        color: var(--love) !important;
+    }
+}
+
+.vote-down-cast{
+    background: var(--secondary) !important;
+    .d-icon{
+        color: var(--love) !important;
+    }
 }

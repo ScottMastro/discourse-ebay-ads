@@ -92,6 +92,21 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         return weight + additional_weight
     end
 
+    def vote
+      item_id = params[:item_id]
+      vote = params[:vote]
+
+      user_id = current_user ? current_user.id : -1
+      ebay_vote = EbayAdPlugin::EbayVote.find_or_initialize_by(user_id: user_id, item_id: item_id)
+      ebay_vote.vote = vote
+
+      if ebay_vote.save
+        render json: { message: 'Vote recorded' }, status: :ok
+      else
+        render json: { message: 'Failed to record vote', errors: ebay_vote.errors.full_messages }, status: :unprocessable_entity
+      end    
+    end
+
     def ad_click
       item_id = params[:item_id]
       banner_click = params.fetch(:banner, 'false') == 'true'

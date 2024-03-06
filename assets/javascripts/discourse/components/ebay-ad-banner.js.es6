@@ -6,6 +6,7 @@ import { action } from "@ember/object";
 
 export default class EbayAdBanner extends Component {
   @tracked model = null;
+  @tracked voteStatus = 0;
 
   constructor() {
     super(...arguments);
@@ -39,6 +40,31 @@ export default class EbayAdBanner extends Component {
 
     }).catch((error) => {
       console.error('Click not recorded:', error);
+    });
+  }
+
+  @action
+  likeAd() {
+    const vote = this.voteStatus == 1 ? 0 : 1; 
+    const encodedId = encodeURIComponent(this.model.item_id);
+    let url = `/ebay/vote/${encodedId}?vote=${vote}`;
+    ajax(url).then((result) => { 
+      this.voteStatus = vote;
+    }).catch((error) => {
+      console.error('Vote not recorded:', error);
+    });
+  }
+
+  @action
+  dislikeAd() {
+    const vote = this.voteStatus == -1 ? 0 : -1; 
+    const encodedId = encodeURIComponent(this.model.item_id);
+    let url = `/ebay/vote/${encodedId}?vote=${vote}`;
+    ajax(url).then((result) => { 
+      this.voteStatus = vote;
+      console.log(this.voteStatus)
+    }).catch((error) => {
+      console.error('Vote not recorded:', error);
     });
   }
 

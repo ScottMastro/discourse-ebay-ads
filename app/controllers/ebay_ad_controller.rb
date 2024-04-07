@@ -10,7 +10,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
             return
           end
       
-          random_listing = EbayAdPlugin::EbayListing.where(seller: random_seller.ebay_username).order("RANDOM()").first
+          random_listing = EbayAdPlugin::EbayListing.where(seller: random_seller.ebay_username).where(active: true).order("RANDOM()").first
       
           # Check if a listing was successfully selected for the seller
           if random_listing.nil?
@@ -46,16 +46,17 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         weighted_pool = []
         
         sellers.each do |seller|
-            weight = all_weights[seller.user_id.to_s] || 0 # Fallback to 0 if no weight is found
-            next if weight == 0
-            weight.times { weighted_pool << seller }
+          weight = all_weights[seller.user_id.to_s] || 0 # Fallback to 0 if no weight is found
+
+          next if weight == 0
+          weight.times { weighted_pool << seller }
             
         end
         weighted_pool.sample
     end
     
     def fetch_all_weights
-        key = "ebay_ad_weight"
+        key = "ebay_ad_weights"
         all_weights = PluginStore.get("ebay_ad_plugin", key)
       
         if all_weights && all_weights[:timestamp] && Time.now.utc.to_i - all_weights[:timestamp].to_i < 6.hours.to_i
@@ -83,12 +84,12 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         user = User.find_by(id: seller.user_id)
         return 0 if user.nil?
         return 0 if !user.in_any_groups?(SiteSetting.ebay_banner_allowed_groups_map)
-
+        
         total_time_read_last_month = UserVisit.where(user_id: seller.user_id)
                                               .where("visited_at >= ?", 1.month.ago.to_date)
                                               .sum(:time_read)
         weight = total_time_read_last_month > 0 ? 1 : 0
-        additional_weight = 0 #[total_time_read_last_month / 3600, 100].min 
+        additional_weight = SiteSetting.ebay_seller_base_weight #[total_time_read_last_month / 3600, 100].min 
         return weight + additional_weight
     end
 

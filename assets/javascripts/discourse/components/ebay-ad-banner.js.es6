@@ -23,10 +23,14 @@ export default class EbayAdBanner extends Component {
   async loadAd() {
     try {
       const result = await ajax("/ebay/ad");
+      //console.log(result)
+
       this.model = result;
       let avatarUrl = this.model.seller_info.avatar;
-      this.model.seller_info.avatar = avatarUrl.replace('{size}', '96');;
+      this.model.seller_info.avatar = avatarUrl.replace('{size}', '96');
       this.setupImpressionWatcher();
+      
+
     } catch (error) {
       popupAjaxError(error);
     }

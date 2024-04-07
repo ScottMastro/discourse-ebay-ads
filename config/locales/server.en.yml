@@ -9,3 +9,4 @@ en:
     ebay_epn_id: "ID used to generate EPN links"
     ebay_seller_allowed_groups: "Allow users in theses groups to show up on the /ebay page"
     max_api_calls_per_day: "Maximum number of eBay API calls to make per day"
+    ebay_seller_base_weight: "Base weight value for each seller during random selection of ad placement"

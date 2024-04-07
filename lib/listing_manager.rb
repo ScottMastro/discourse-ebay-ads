@@ -13,6 +13,7 @@ module EbayAdPlugin::ListingManager
                                       end
         
         listing_record.assign_attributes(
+          active:            true,
           legacy_id:         listing["legacyItemId"],
           title:             listing["title"],
           description:       "",
@@ -35,7 +36,6 @@ module EbayAdPlugin::ListingManager
     end
 
     def self.record_ebay_listings(listings)
-        #todo: handle expired listings
         listings.each do |listing|
             record_ebay_listing(listing)
         end

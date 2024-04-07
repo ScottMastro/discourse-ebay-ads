@@ -33,3 +33,7 @@ plugins:
   ebay_seller_allowed_groups:
     default: "3" # auto group staff
     type: group_list
+
+  ebay_seller_base_weight:
+    default: 0
+    client: false

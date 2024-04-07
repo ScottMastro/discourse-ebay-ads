@@ -26,7 +26,8 @@ class EbayAdPlugin::EbayController < ::ApplicationController
         discourse_username = params[:username]
       
         base_query = EbayAdPlugin::EbayListing.joins("INNER JOIN ebay_sellers ON ebay_listings.seller = ebay_sellers.ebay_username")
-      
+        .where(ebay_listings: { active: true })
+
         if discourse_username.present?
           user = User.find_by(username: discourse_username)
           if user

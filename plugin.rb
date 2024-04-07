@@ -46,6 +46,7 @@ after_initialize do
   require_relative 'jobs/dump_seller_listings.rb'
   require_relative 'jobs/get_seller_listings.rb'
   require_relative 'jobs/item_lookup.rb'
+  require_relative 'jobs/clean_up_listings.rb'
 
   add_admin_route 'ebay_ads.admin_title', 'ebay'
 
@@ -106,6 +107,14 @@ after_initialize do
         end
       end
     end
+
+    class CleanEbayListings < ::Jobs::Scheduled
+      every 4.hours
+      def execute(args)
+          Jobs.enqueue(:clean_up_listings)
+      end
+    end
+
   end
 
   def extract_ebay_urls(text)

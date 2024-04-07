@@ -56,7 +56,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
     end
     
     def fetch_all_weights
-        key = "ebay_ad_weights"
+        key = "ebay_seller_weights"
         all_weights = PluginStore.get("ebay_ad_plugin", key)
       
         if all_weights && all_weights[:timestamp] && Time.now.utc.to_i - all_weights[:timestamp].to_i < 6.hours.to_i
@@ -78,7 +78,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
     end
     
     def calculate_weight_for(seller)
-        has_listings = EbayAdPlugin::EbayListing.where(seller: seller.ebay_username).exists?
+        has_listings = EbayAdPlugin::EbayListing.where(seller: seller.ebay_username).where(active: true).exists?
         return 0 unless has_listings
         
         user = User.find_by(id: seller.user_id)

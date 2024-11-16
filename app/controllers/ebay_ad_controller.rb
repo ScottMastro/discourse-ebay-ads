@@ -6,16 +6,14 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         if EbayAdPlugin::EbayListing.count > 0
           random_seller = weighted_random_selector
           if random_seller.nil?
-            render json: { error: "No seller found." }
-            return
+            render json: {} and return
           end
       
           random_listing = EbayAdPlugin::EbayListing.where(seller: random_seller.ebay_username).where(active: true).order("RANDOM()").first
       
           # Check if a listing was successfully selected for the seller
           if random_listing.nil?
-            render json: { error: "No listing found for selected seller." }
-            return
+            render json: {} and return
           end
       
           listing_hash = random_listing.attributes
@@ -35,7 +33,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
           listing_hash["epn_id"] = SiteSetting.ebay_epn_id
           render json: listing_hash
         else
-          render json: { error: "No listings available." }
+          render json: {} and return
         end
       end
 

@@ -23,7 +23,12 @@ export default class EbayAdBanner extends Component {
   async loadAd() {
     try {
       const result = await ajax("/ebay/ad");
-      //console.log(result)
+
+      // If result is empty, do nothing
+      if (!result || Object.keys(result).length === 0) {
+        console.log("No ad data received.");
+        return; // Exit gracefully
+      }
 
       this.model = result;
       let avatarUrl = this.model.seller_info.avatar;

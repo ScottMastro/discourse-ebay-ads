@@ -10,9 +10,8 @@
 enabled_site_setting :enable_ebay_ads
 
 register_svg_icon "fab-ebay" if respond_to?(:register_svg_icon)
-register_svg_icon "fa-broom" if respond_to?(:register_svg_icon)
-register_svg_icon "fa-circle-xmark" if respond_to?(:register_svg_icon)
-register_svg_icon "far-circle-xmark" if respond_to?(:register_svg_icon)
+register_svg_icon "broom" if respond_to?(:register_svg_icon)
+register_svg_icon "circle-xmark" if respond_to?(:register_svg_icon)
 
 register_asset 'stylesheets/common/common.scss'
 

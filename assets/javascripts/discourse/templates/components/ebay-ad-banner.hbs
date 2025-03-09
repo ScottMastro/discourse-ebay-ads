@@ -42,12 +42,14 @@
             
             {{#if this.model.seller_info}}
               <a class="ebay-ad-clickable" href="/u/{{this.model.seller_info.username}}">
-                <div class="ebay-ad-logo">
-                  <img alt="efour" class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/efour_grey.svg">
-                </div>
-                <div class="ebay-ad-seller-info-name">{{this.model.seller_info.username}}</div> 
+                {{#if false}}
+                  <div class="ebay-ad-logo">
+                    <img alt="efour" class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/efour_grey.svg">
+                  </div>
                 <div class="ebay-ad-seller-info-title">{{this.model.seller_info.title}}</div> 
+                {{/if}}
                 <img class="ebay-ad-avatar" src={{this.model.seller_info.avatar}}>
+                <div class="ebay-ad-seller-info-name">{{this.model.seller_info.username}}</div> 
               </a>
             {{/if}}
 

@@ -27,7 +27,6 @@
 
 .ebay-ad-flex{
     display: flex;
-    column-gap: 1em;
     align-items: center;
     height: 100px;
     width: 100%;
@@ -39,15 +38,20 @@
     border-color: rgba(128, 128, 128, 0.6);
     border-width: 2px;
     height: 100px;
+    width: 100%;
     font-family: 'Tahoma', sans-serif;
     background-color: rgba(128, 128, 128, 0.2);
 }
 
 .ebay-ad-item-info{
     .ebay-ad-info-details{
+        justify-content: space-evenly;
+        padding-left: 10px;
+        padding-right: 10px;
         display: flex;
         overflow: hidden;
         height: 100px;
+        width: 100%;
         flex-direction: column;
     }
 }

@@ -33,16 +33,20 @@
       </a>
 
       <div class="ebay-ad-clickables-container ebay-ad-flex">
-        <a class="ebay-ad-clickable" href="https://www.ebay.com/usr/{{this.model.seller}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
-          onclick={{action this.trackEbayClick}} 
-          target="_blank">
 
-          <div class="ebay-ad-logo">
-            <img alt="ebay" class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/ebay_grey.svg">
-          </div>
-          <div class="ebay-ad-seller-info-name">{{this.model.seller}} <div class="ebay-ad-seller-feedback">({{this.model.feedback_score}})</div></div> 
-          <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
-        </a>
+        {{#if false}}
+
+          <a class="ebay-ad-clickable" href="https://www.ebay.com/usr/{{this.model.seller}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
+            onclick={{action this.trackEbayClick}} 
+            target="_blank">
+
+            <div class="ebay-ad-logo">
+              <img alt="ebay" class="ebay-ad-thumbnail-logo" src="/plugins/discourse-ebay-ads/images/ebay_grey.svg">
+            </div>
+            <div class="ebay-ad-seller-info-name">{{this.model.seller}} <div class="ebay-ad-seller-feedback">({{this.model.feedback_score}})</div></div> 
+            <div class="ebay-ad-seller-info-percent">{{this.model.feedback_percent}}% feedback</div> 
+          </a>
+        {{/if}}
 
         {{#if this.model.seller_info}}
 

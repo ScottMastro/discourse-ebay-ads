@@ -62,7 +62,7 @@
               />
               <DButton
                 @action={{(fn this.dislikeAd)}}
-                @icon="{{if (eq this.voteStatus -1) 'times-circle' 'times'}}"
+                @icon="{{if (eq this.voteStatus -1) 'xmark-circle' 'xmark'}}"
                 class="vote-button vote-dislike-button {{if (eq this.voteStatus -1) 'vote-down-cast' 'no-vote-cast'}}"
               />
             </div>

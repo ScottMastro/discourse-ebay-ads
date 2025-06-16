@@ -41,6 +41,7 @@ after_initialize do
   require_relative 'lib/ebay_api.rb'
   require_relative 'lib/create_system_post.rb'
   require_relative 'lib/listing_manager.rb'
+  require_relative 'lib/shortlink_resolver.rb'
 
   require_relative 'jobs/dump_seller_listings.rb'
   require_relative 'jobs/get_seller_listings.rb'
@@ -54,13 +55,14 @@ after_initialize do
   end
 
   EbayAdPlugin::Engine.routes.draw do
-    
     get '/ebay' => 'ebay#index'
     get '/ebay/search' => 'ebay#search'
     get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
     get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
+    
+    get "/ebay/resolve" => "ebay_ad#resolve_ebay_us"
 
     get "/ebay/adclick/:item_id" => "ebay_ad#ad_click"
     get "/ebay/adimpression/:item_ids" => "ebay_ad#ad_impression"

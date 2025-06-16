@@ -131,4 +131,19 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
 
       return render json: { message: "Impression(s) recorded" }    
     end
+
+    def resolve_ebay_us
+      url = params[:url]
+      if url.blank?
+        render json: { error: "Missing url parameter" }, status: 400
+        return
+      end
+
+      result = ShortlinkResolver.resolve(url)
+      if result[:error]
+        render json: result, status: 422
+      else
+        render json: result
+      end
+    end
 end

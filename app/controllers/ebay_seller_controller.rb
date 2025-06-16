@@ -146,7 +146,7 @@ class EbayAdPlugin::EbaySellerController < ::ApplicationController
 
         seller = EbayAdPlugin::EbaySeller.find_by(ebay_username: ebay_username)
         if seller.nil?
-            render json: { status: "failed", error: "Seller #{ebay_username} is unknown.", status: :not_found }
+            render json: { status: "failed", error: "Seller #{ebay_username} is unknown." }, status: :not_found
             return
         elsif seller.blocked
             seller.update!(blocked: false)

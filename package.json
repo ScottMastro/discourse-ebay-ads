@@ -1,7 +1,7 @@
 {
-  "name": "discourse-e4-banner-plugin",
+  "name": "discourse-discourse-ebay-ads",
   "version": "1.0.0",
-  "repository": "https://github.com/ScottMastro/discourse-e4-banner-plugin",
+  "repository": "https://github.com/ScottMastro/discourse-ebay-ads",
   "author": "ScottMastro",
   "license": "MIT",
   "devDependencies": {

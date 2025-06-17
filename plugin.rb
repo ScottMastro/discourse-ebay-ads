@@ -50,6 +50,25 @@ after_initialize do
 
   add_admin_route 'ebay_ads.admin_title', 'ebay'
 
+  after_initialize do
+    on(:before_create_post) do |post|
+      raw = post.raw
+
+      raw.gsub!(%r{https://ebay\.us/\S+}) do |shortlink|
+        result = Ebay::ShortlinkResolver.resolve(shortlink)
+
+        if result[:itemId]
+          # Convert to full affiliate link
+          "https://www.ebay.com/itm/#{result[:itemId]}?campid=YOUR_CAMPAIGN_ID"
+        else
+          shortlink # fallback to original
+        end
+      end
+
+      post.raw = raw
+    end
+  end
+
   Discourse::Application.routes.append do
     get '/admin/plugins/ebay' => 'admin/plugins#index', constraints: StaffConstraint.new
   end

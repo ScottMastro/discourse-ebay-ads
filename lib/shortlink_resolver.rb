@@ -2,7 +2,7 @@
 
 module Ebay
   class ShortlinkResolver
-    require "net/http"
+    require "open-uri"
     require "uri"
 
     def self.resolve(url)
@@ -12,19 +12,18 @@ module Ebay
         return { error: "Only ebay.us links are supported" }
       end
 
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-
-      response = http.request_head(uri.request_uri)
-      redirect_url = response["location"]
-
-      unless redirect_url
-        return { error: "No redirect location found" }
+      # Follow redirect with a browser-like User-Agent
+      redirect_url = URI.open(url, "User-Agent" => "Mozilla/5.0", redirect: false) do |resp|
+        # If not redirected, bail
+        location = resp.meta["location"]
+        unless location
+          return { error: "No redirect location found" }
+        end
+        location
       end
 
-      item_id = redirect_url.match(/\/itm\/(\d{11,14})/)
-      item_id = item_id[1] if item_id
-
+      item_id_match = redirect_url.match(/\/itm\/(\d{11,14})/)
+      item_id = item_id_match[1] if item_id_match
 
       {
         itemId: item_id,

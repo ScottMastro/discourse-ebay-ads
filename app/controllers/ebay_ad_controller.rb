@@ -35,7 +35,7 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
         else
           render json: {} and return
         end
-      end
+    end
 
     def weighted_random_selector
         

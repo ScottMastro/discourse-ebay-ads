@@ -117,19 +117,34 @@ class EbayAdPlugin::EbayAdController < ::ApplicationController
 
     def ad_impression
       item_ids = params[:item_ids].split('&')
-      banner_impression = params.fetch(:banner, 'false') == 'true'
-      user_id = current_user ? current_user.id : -1
 
-      item_ids.each do |item_id|
-        if banner_impression
-          EbayAdPlugin::EbayBannerImpression.create(user_id: user_id, item_id: item_id)
-        else
-          search_impression = EbayAdPlugin::EbaySearchImpression.find_or_create_by(item_id: item_id)
-          search_impression.increment!(:count)
-        end
-      end 
+      sellers_by_increment = EbayAdPlugin::EbayListing
+                               .where(item_id: item_ids)
+                               .pluck(:seller)
+                               .compact
+                               .tally
+      return render json: { message: "Impression(s) recorded" } if sellers_by_increment.empty?
 
-      return render json: { message: "Impression(s) recorded" }    
+      today = Date.current
+      now = Time.current
+      sellers_by_increment.each do |seller, increment|
+        EbayAdPlugin::EbayImpression.upsert(
+          {
+            ebay_username: seller,
+            date: today,
+            count: increment,
+            created_at: now,
+            updated_at: now,
+          },
+          unique_by: %i[ebay_username date],
+          on_duplicate: Arel.sql(
+            "count = ebay_impressions.count + EXCLUDED.count, " \
+            "updated_at = EXCLUDED.updated_at"
+          )
+        )
+      end
+
+      render json: { message: "Impression(s) recorded" }
     end
 
     def resolve_ebay_us

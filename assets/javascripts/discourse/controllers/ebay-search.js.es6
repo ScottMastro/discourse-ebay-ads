@@ -96,7 +96,6 @@ export default class extends Controller {
   @action
   updateSelectedCompany(company){
     this.selectedCompany = company;
-    console.log(this.selectedCompany)
   }
 
   @action
@@ -138,7 +137,6 @@ export default class extends Controller {
   }
 
   flushImpressions() {
-    console.log(this.impressionList.length, this.impressionList)
     if (this.impressionList.length > 0) {
 
       const encodedItemsList = Array.from(this.impressionList).map(item =>

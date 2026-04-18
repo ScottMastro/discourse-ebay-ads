@@ -42,6 +42,7 @@ after_initialize do
   require_relative 'lib/create_system_post.rb'
   require_relative 'lib/listing_manager.rb'
   require_relative 'lib/shortlink_resolver.rb'
+  require_relative 'lib/ad_pool.rb'
 
   require_relative 'jobs/dump_seller_listings.rb'
   require_relative 'jobs/get_seller_listings.rb'

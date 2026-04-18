@@ -77,7 +77,7 @@ export default class EbayAdBanner extends Component {
 
   trackEbayImpression() {
     const encodedId = encodeURIComponent(this.model.item_id);
-    ajax(`/ebay/adimpression/${encodedId}?banner=true`).catch((error) => {
+    ajax(`/ebay/adimpression/${encodedId}`).catch((error) => {
       console.error("Impression not recorded:", error);
     });
   }

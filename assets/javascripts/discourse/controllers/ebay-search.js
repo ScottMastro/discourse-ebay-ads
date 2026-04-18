@@ -16,10 +16,6 @@ export default class extends Controller {
 
   @tracked mode_row = true;
 
-  @tracked selectedCompany = 'all';
-  @tracked selectedGrade = true;
-
-
   limit = 20;
   offset = 0;
   observer = null;
@@ -90,15 +86,6 @@ export default class extends Controller {
   }
 
   @action
-  updateSelectedGrade(){
-
-  }
-  @action
-  updateSelectedCompany(company){
-    this.selectedCompany = company;
-  }
-
-  @action
   switchModeGrid(){
     this.mode_row = false;
   }
@@ -145,7 +132,7 @@ export default class extends Controller {
 
       const encodedItems = encodedItemsList.join('&');
       const url = `/ebay/adimpression/${encodedItems}`;
-      this.impressionList.clear();
+      this.impressionList = [];
 
       ajax(url).then((result) => {
       }).catch((error) => {

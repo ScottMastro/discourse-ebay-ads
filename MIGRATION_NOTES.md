@@ -170,9 +170,67 @@ Baseline established: Discourse `v3.6.0.beta1-dev` at commit `40a6542e62`, Ember
 
 See "Efficiency / performance — observations" above. Next concrete step is to capture a baseline measurement of `ad_data` against the restored 425k-listing DB, then ship the "Quick wins" PR and re-measure.
 
-### Baseline (to fill in)
+### Baseline (captured against restored prod data at `40a6542e62`)
 
-- `EXPLAIN ANALYZE` on the `ORDER BY RANDOM()` path: _pending_
-- Avg ms per `ad_data` over 200 iterations: _pending_
-- Queries per `ad_data`: _pending_
-- Ruby allocation count during `weighted_random_selector`: _pending_
+**Data shape:**
+- 234 active sellers (non-hidden, non-blocked)
+- 429,932 total listings; **31,999 active (7.4%)** — 93% of listings are historical/stale
+- Avg active listings per seller: ~137
+
+**Rails-level benchmark (200 iterations of the `weighted_random_selector` + `ORDER BY RANDOM()` path):**
+- Total: 1116.5 ms
+- **Avg per ad_data: 5.58 ms**
+- **3.39 queries per call**
+
+**SQL-level `EXPLAIN ANALYZE` of the killer query:**
+```
+Execution Time: 26.982 ms
+Sort Method: top-N heapsort
+Parallel Seq Scan on ebay_listings (Workers Launched: 2)
+  Rows Removed by Filter: 143189 per worker
+```
+
+**Root cause #1: zero indexes on `ebay_listings` except the PK.**
+- No index on `seller`
+- No index on `active`
+- No index on `item_id` (despite `ListingManager.record_ebay_listing` doing `find_or_initialize_by(item_id:)` on every ingest)
+- No index on `legacy_id`
+
+Every ad impression triggers a parallel-sequential-scan of ~430k rows. The Rails-level avg is only 5.58 ms because Postgres caches the scan across many repeated calls; a cold-cache first hit is closer to the 27 ms from EXPLAIN, and concurrent ad requests compete for shared buffers + workers.
+
+**Root cause #2: `ORDER BY RANDOM()` itself.** Even with an index on `(seller, active)` the planner still has to materialize every matching row and sort by random — cheaper than a seq scan but still `O(n log n)` on a few hundred rows per seller.
+
+### First recommended PR — indexes + `.exists?`
+
+Lowest-hanging fruit before touching code logic:
+
+1. **Migration: partial index on active listings by seller**
+   ```ruby
+   add_index :ebay_listings, [:seller, :active],
+             where: "active = true", algorithm: :concurrently
+   ```
+   Partial index keeps it small (only 32k rows, not 430k).
+
+2. **Migration: unique index on `item_id`**
+   ```ruby
+   add_index :ebay_listings, :item_id, unique: true, algorithm: :concurrently
+   ```
+   Makes `find_or_initialize_by(item_id:)` in the ingest path fast and enables later `upsert_all`.
+
+3. **Controller: `.count > 0` → `.exists?`** — one-line win, applies before any index work.
+
+After those three, re-run the baseline benchmark. Expected: `avg_per_call` drops from 5.58 ms to under 1 ms; `EXPLAIN` switches to an Index Scan.
+
+### Result of that PR (captured)
+
+Migration `20260418000001_add_indexes_to_ebay_listings.rb` applied. Also surfaced: **4 duplicate `item_id` groups existed in production data** (8 rows total). The `find_or_initialize_by(item_id:)` in `ListingManager.record_ebay_listing` has a race window that created them over time. Migration now dedupes via window-function + keeps most-recently-updated row, then applies the unique index, closing the race for future ingests.
+
+| Metric | Before | After | Change |
+|---|---|---|---|
+| `EXPLAIN ANALYZE` execution time | 26.98 ms | 0.40 ms | **~67× faster** |
+| Query plan | Parallel Seq Scan (143k rows removed/worker) | Bitmap Index Scan (365 rows fetched) | — |
+| Rails avg per `ad_data` | 5.58 ms | 3.9 ms | ~30% |
+| Queries per `ad_data` | 3.39 | 3.05 | minor |
+| Duplicate `item_id` groups | 4 | 0 | — |
+
+The Rails-level gain (30%) looks modest relative to the SQL gain (67×) because the baseline benchmark was running with warm Postgres shared buffers, hiding the seq-scan cost. Under cold cache or concurrent load the real-world gain is much larger. The remaining ~3.9 ms Rails overhead is now dominated by `weighted_random_selector` (the per-request `EbaySeller.where(...)` query and the Ruby array allocation), which is what the bsearch redesign targets.

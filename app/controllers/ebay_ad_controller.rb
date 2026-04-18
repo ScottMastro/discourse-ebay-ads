@@ -3,7 +3,7 @@
 class EbayAdPlugin::EbayAdController < ::ApplicationController
     
     def ad_data
-        if EbayAdPlugin::EbayListing.count > 0
+        if EbayAdPlugin::EbayListing.exists?
           random_seller = weighted_random_selector
           if random_seller.nil?
             render json: {} and return

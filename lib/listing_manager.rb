@@ -12,6 +12,25 @@ module EbayAdPlugin::ListingManager
     record_ebay_listings([listing])
   end
 
+  # After a fresh fetch for a seller, mark any of their previously-active
+  # listings that did NOT appear in this fetch as inactive. This catches
+  # sold/delisted items within one fetch cycle instead of waiting for the
+  # 3-day CleanUpListings sweep.
+  #
+  # Guarded against empty fetches (API error, quota exhausted) — if we
+  # didn't see ANY listings for this seller, we can't tell the difference
+  # between "seller has no listings" and "fetch failed", so we do nothing
+  # and let CleanUpListings handle it as a safety net.
+  def self.deactivate_unseen(seller_username, seen_item_ids)
+    return if seller_username.blank?
+    return if seen_item_ids.blank?
+
+    EbayAdPlugin::EbayListing
+      .where(seller: seller_username, active: true)
+      .where.not(item_id: seen_item_ids)
+      .update_all(active: false, updated_at: Time.current)
+  end
+
   def self.row_for(listing, now)
     return nil if listing["itemId"].blank?
 

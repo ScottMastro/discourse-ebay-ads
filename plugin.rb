@@ -114,6 +114,7 @@ after_initialize do
       every 1.day
 
       def execute(args)
+        eligible = []
         EbayAdPlugin::EbaySeller.find_each do |seller|
           next if seller.user_id.nil?
           next if seller.blocked || seller.hidden
@@ -122,9 +123,23 @@ after_initialize do
           next if user.nil?
           next if !user.in_any_groups?(SiteSetting.ebay_seller_allowed_groups_map)
 
-          ebay_username = seller.ebay_username
-          
-          Jobs.enqueue(:get_seller_listings, ebay_seller: ebay_username)
+          eligible << seller.ebay_username
+        end
+
+        return if eligible.empty?
+
+        # Spread enqueues evenly across `ebay_ingest_spread_hours`. This keeps
+        # Sidekiq from hammering the DB + eBay API all at once on the daily
+        # refresh. At default 4h / 234 sellers ≈ one job per minute.
+        spread = SiteSetting.ebay_ingest_spread_hours.to_f.hours
+        delay_per_seller = spread / eligible.size
+
+        eligible.each_with_index do |ebay_username, idx|
+          Jobs.enqueue_in(
+            idx * delay_per_seller,
+            :get_seller_listings,
+            ebay_seller: ebay_username,
+          )
         end
       end
     end

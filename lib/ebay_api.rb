@@ -7,7 +7,7 @@ require 'logger'
 
 module EbayAdPlugin::EbayAPI
 
-    SLEEP_TIME = 1 #seconds
+    SLEEP_TIME = 0.1 # seconds — between paginated Browse API calls within one job
     TOKEN_EXPIRY_BUFFER = 60 # seconds
     EBAY_API_BASE = "https://api.ebay.com"
     BROWSE_API = "#{EBAY_API_BASE}/buy/browse/v1"

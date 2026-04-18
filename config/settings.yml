@@ -37,3 +37,9 @@ plugins:
   ebay_seller_base_weight:
     default: 0
     client: false
+
+  ebay_ingest_spread_hours:
+    default: 4
+    min: 0
+    max: 20
+    client: false

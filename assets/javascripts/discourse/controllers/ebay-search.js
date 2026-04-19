@@ -1,10 +1,13 @@
 import Controller from '@ember/controller';
 import { ajax } from 'discourse/lib/ajax';
 import { action } from '@ember/object';
+import { service } from "@ember/service";
 import { tracked } from '@glimmer/tracking';
 import { scheduleOnce } from '@ember/runloop';
 
 export default class extends Controller {
+  @service siteSettings;
+
   @tracked ebayListings = [];
   @tracked totalCount = 0;
   @tracked impressionList = [];

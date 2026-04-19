@@ -65,7 +65,7 @@
               @action={{(fn this.deleteSellerFromTable seller.ebay_username)}}
               @translatedLabel={{i18n "ebay_ads.admin.delete"}}
               class="btn-primary btn-danger"
-              @icon="far-trash-alt"
+              @icon="trash-can"
             />
           </td>
           <td>
@@ -77,7 +77,7 @@
               <DButton
                 @action={{(fn this.fetchListings seller.username)}}
                 @translatedLabel={{i18n "ebay_ads.admin.update"}}
-                @icon="sync"
+                @icon="rotate"
                 class=""
               />
             {{/if}}

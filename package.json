@@ -1,10 +1,6 @@
 {
-  "name": "discourse-discourse-ebay-ads",
-  "version": "1.0.0",
-  "repository": "https://github.com/ScottMastro/discourse-ebay-ads",
-  "author": "ScottMastro",
-  "license": "MIT",
-  "devDependencies": {
-    "eslint-config-discourse": "^3.1.0"
+  "private": true,
+  "dependencies": {
+    "discourse": "npm:@discourse/types@*"
   }
 }

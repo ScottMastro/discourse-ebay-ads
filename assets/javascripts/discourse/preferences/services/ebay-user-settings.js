@@ -1,5 +1,5 @@
-import Service from '@ember/service';
-import { tracked } from '@glimmer/tracking';
+import { tracked } from "@glimmer/tracking";
+import Service from "@ember/service";
 
 export default class EbayUserSettingsService extends Service {
   @tracked discourseId = null;

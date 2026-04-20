@@ -6,7 +6,5 @@ export default class EbayPreferences extends Component {
     return siteSettings.enable_ebay_ads;
   }
 
-  <template>
-    <EbayPreferencesSettings @model={{@outletArgs.model}} />
-  </template>
+  <template><EbayPreferencesSettings @model={{@outletArgs.model}} /></template>
 }

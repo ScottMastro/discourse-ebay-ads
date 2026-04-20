@@ -29,11 +29,7 @@ module EbayAdPlugin::AdPool
       end
 
       pool = build
-      PluginStore.set(
-        PLUGIN_NAME,
-        CACHE_KEY,
-        { data: pool, timestamp: Time.now.utc.to_i }
-      )
+      PluginStore.set(PLUGIN_NAME, CACHE_KEY, { data: pool, timestamp: Time.now.utc.to_i })
       pool
     end
 
@@ -63,16 +59,13 @@ module EbayAdPlugin::AdPool
       base_weight = SiteSetting.ebay_seller_base_weight.to_i
       cutoff = 1.month.ago.to_date
 
-      sellers_with_listings = EbayAdPlugin::EbayListing
-                                .where(active: true)
-                                .distinct
-                                .pluck(:seller)
-                                .to_set
+      sellers_with_listings =
+        EbayAdPlugin::EbayListing.where(active: true).distinct.pluck(:seller).to_set
 
       EbayAdPlugin::EbaySeller
         .where(hidden: false, blocked: false)
         .find_each do |seller|
-          next unless sellers_with_listings.include?(seller.ebay_username)
+          next if sellers_with_listings.exclude?(seller.ebay_username)
 
           user = User.find_by(id: seller.user_id)
           next if user.nil?

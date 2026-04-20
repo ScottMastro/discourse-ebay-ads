@@ -35,6 +35,9 @@ export default <template>
 
   <h3>{{i18n "ebay_ads.admin.seller_table"}}</h3>
   <div class="table">
+    {{#unless @controller.allSellers.length}}
+      <div class="spinner"></div>
+    {{/unless}}
     <table>
       <thead>
         <tr>
@@ -44,9 +47,8 @@ export default <template>
           <th>{{i18n "ebay_ads.admin.listings"}}</th>
         </tr>
       </thead>
-
-      {{#if @controller.allSellers.length}}
-        <tbody>
+      <tbody>
+        {{#if @controller.allSellers.length}}
           {{#each @controller.allSellers as |seller|}}
             <tr>
               <td>
@@ -117,10 +119,8 @@ export default <template>
               </td>
             </tr>
           {{/each}}
-        </tbody>
-      {{else}}
-        <div class="spinner"></div>
-      {{/if}}
+        {{/if}}
+      </tbody>
     </table>
   </div>
 </template>

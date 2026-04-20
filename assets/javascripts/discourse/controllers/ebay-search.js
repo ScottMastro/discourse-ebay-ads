@@ -1,13 +1,10 @@
-import Controller from '@ember/controller';
-import { ajax } from 'discourse/lib/ajax';
-import { action } from '@ember/object';
-import { service } from "@ember/service";
-import { tracked } from '@glimmer/tracking';
-import { scheduleOnce } from '@ember/runloop';
+import { tracked } from "@glimmer/tracking";
+import Controller from "@ember/controller";
+import { action } from "@ember/object";
+import { scheduleOnce } from "@ember/runloop";
+import { ajax } from "discourse/lib/ajax";
 
 export default class extends Controller {
-  @service siteSettings;
-
   @tracked ebayListings = [];
   @tracked totalCount = 0;
   @tracked impressionList = [];
@@ -27,122 +24,110 @@ export default class extends Controller {
     super.init();
     this.flushTimer = null;
     this.flushInterval = 500;
-  
+
     this.loadEbayListings(true);
-    scheduleOnce('afterRender', this, this.setupScrollObserver);
-   }
+    scheduleOnce("afterRender", this, this.setupScrollObserver);
+  }
 
   loadEbayListings(force) {
-    if (!force && (this.isLoading || !this.hasMore)) return;
+    if (!force && (this.isLoading || !this.hasMore)) {
+      return;
+    }
 
     this.isLoading = true;
     let url = `/ebay/search.json?limit=${this.limit}&offset=${this.offset}`;
-    if(this.search_keys){
-      url = url + "&search_keys="+encodeURIComponent(this.search_keys);
+    if (this.search_keys) {
+      url = url + "&search_keys=" + encodeURIComponent(this.search_keys);
     }
-    if(this.filtered_username){ 
-      url = url + "&username="+encodeURIComponent(this.filtered_username);
+    if (this.filtered_username) {
+      url = url + "&username=" + encodeURIComponent(this.filtered_username);
     }
-    
-    ajax(url).then((result) => {
-      if (result.ebay_listings.length < this.limit) {
-        this.hasMore = false;
-      }
-      
-      this.totalCount = result.total_count;
-      this.ebayListings = [...this.ebayListings, ...result.ebay_listings];
-      this.offset += this.limit;
-      this.isLoading = false;
 
-      const container = document.querySelector('#listings-container');
-      const observer = new MutationObserver((mutations, obs) => {
-        result.ebay_listings.forEach((item) => {
-          this.setupImpressionObserver(item.item_id);
+    ajax(url)
+      .then((result) => {
+        if (result.ebay_listings.length < this.limit) {
+          this.hasMore = false;
+        }
+
+        this.totalCount = result.total_count;
+        this.ebayListings = [...this.ebayListings, ...result.ebay_listings];
+        this.offset += this.limit;
+        this.isLoading = false;
+
+        const container = document.querySelector("#listings-container");
+        const observer = new MutationObserver((mutations, obs) => {
+          result.ebay_listings.forEach((item) => {
+            this.setupImpressionObserver(item.item_id);
+          });
+          obs.disconnect();
         });
-        obs.disconnect(); 
+
+        observer.observe(container, { childList: true });
+      })
+      .catch(() => {
+        this.isLoading = false;
       });
-      
-      observer.observe(container, { childList: true });
-
-
-    }).catch((error) => {
-      this.isLoading = false;
-      console.error('Error fetching eBay listings:', error);
-    });
   }
 
-
   @action
-  onChangeSearchForUsername(username){
+  onChangeSearchForUsername(username) {
     this.filtered_username = username;
-    this.offset=0;
-    this.ebayListings=[];
+    this.offset = 0;
+    this.ebayListings = [];
     this.loadEbayListings(true);
   }
 
   @action
-  updateSearch(search_text){
+  updateSearch(search_text) {
     this.search_keys = search_text;
-    this.offset=0;
-    this.ebayListings=[];
+    this.offset = 0;
+    this.ebayListings = [];
     this.loadEbayListings(true);
   }
 
   @action
-  switchModeGrid(){
+  switchModeGrid() {
     this.mode_row = false;
   }
 
   @action
-  switchModeRow(){
+  switchModeRow() {
     this.mode_row = true;
   }
 
   @action
   trackEbayClick(itemId) {
     const encodedId = encodeURIComponent(itemId);
-    let url = `/ebay/adclick/${encodedId}`;
-    ajax(url).then((result) => { 
-
-    }).catch((error) => {
-      console.error('Click not recorded:', error);
-    });
+    ajax(`/ebay/adclick/${encodedId}`);
   }
 
   trackEbayImpression(itemId) {
     this.impressionList.push(itemId);
-  
+
     if (this.flushTimer) {
       clearTimeout(this.flushTimer);
     }
 
     if (this.impressionList.length >= 20) {
-      this.flushImpressions()
-    } else{
+      this.flushImpressions();
+    } else {
       this.flushTimer = setTimeout(() => {
         this.flushImpressions();
       }, this.flushInterval);
     }
-  
   }
 
   flushImpressions() {
     if (this.impressionList.length > 0) {
-
-      const encodedItemsList = Array.from(this.impressionList).map(item =>
+      const encodedItemsList = Array.from(this.impressionList).map((item) =>
         encodeURIComponent(item)
       );
 
-      const encodedItems = encodedItemsList.join('&');
+      const encodedItems = encodedItemsList.join("&");
       const url = `/ebay/adimpression/${encodedItems}`;
       this.impressionList = [];
 
-      ajax(url).then((result) => {
-      }).catch((error) => {
-
-        console.error('Failed to send impressions:', error);
-      });
-  
+      ajax(url);
     }
 
     this.flushTimer = null;
@@ -154,7 +139,7 @@ export default class extends Controller {
   }
 
   setupScrollObserver() {
-    let options = { root: null, rootMargin: '0px', threshold: 1.0 };
+    let options = { root: null, rootMargin: "0px", threshold: 1.0 };
 
     this.observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !this.isLoading) {
@@ -162,16 +147,14 @@ export default class extends Controller {
       }
     }, options);
 
-    const sentinel = document.querySelector('.ebay-search-scroll-sentinel');
-    if (!sentinel) {
-      console.error('Sentinel element not found.');
-    } else {
+    const sentinel = document.querySelector(".ebay-search-scroll-sentinel");
+    if (sentinel) {
       this.observer.observe(sentinel);
     }
   }
 
   setupImpressionObserver(itemId) {
-    let options = { root: null, rootMargin: '0px', threshold: 1.0 };
+    let options = { root: null, rootMargin: "0px", threshold: 1.0 };
 
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
@@ -181,13 +164,8 @@ export default class extends Controller {
     }, options);
 
     const impression = document.getElementById(`impression-observer-${itemId}`);
-    if (!impression) {
-      console.error(`#impression-observer-${itemId} not found.`);
-    } else {
+    if (impression) {
       observer.observe(impression);
     }
   }
-
-
-
 }

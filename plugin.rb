@@ -13,18 +13,30 @@ register_svg_icon "fab-ebay" if respond_to?(:register_svg_icon)
 register_svg_icon "broom" if respond_to?(:register_svg_icon)
 register_svg_icon "circle-xmark" if respond_to?(:register_svg_icon)
 
-register_asset 'stylesheets/common/common.scss'
+register_asset "stylesheets/common/common.scss"
 
-register_asset 'stylesheets/common/common_listings.scss'
-register_asset 'stylesheets/common/common_banner.scss'
+register_asset "stylesheets/common/common_listings.scss"
+register_asset "stylesheets/common/common_banner.scss"
 
-register_asset 'stylesheets/mobile/mobile_listings.scss', :mobile
-register_asset 'stylesheets/mobile/mobile_banner.scss', :mobile
+register_asset "stylesheets/mobile/mobile_banner.scss", :mobile
 
 after_initialize do
-
   module ::EbayAdPlugin
     PLUGIN_NAME = "discourse-ebay-ads"
+
+    def self.extract_ebay_urls(text)
+      text.scan(%r{https?://(?:www\.)?ebay\.[a-z\.]{2,6}(?:/\S*)?}i)
+    end
+
+    def self.extract_ebay_item_id(url)
+      match = url.match(/(\d{11,14})/)
+      match[1] if match
+    end
+
+    def self.get_id_from_post(text)
+      match = text.match(/rowid:\s*(.+?)\n/)
+      match[1] if match
+    end
   end
 
   class EbayAdPlugin::Engine < ::Rails::Engine
@@ -32,24 +44,24 @@ after_initialize do
     isolate_namespace EbayAdPlugin
   end
 
-  require_relative 'app/controllers/ebay_controller.rb'
-  require_relative 'app/controllers/ebay_seller_controller.rb'
-  require_relative 'app/controllers/ebay_ad_controller.rb'
-  require_relative 'app/models/ebay_models.rb'
+  require_relative "app/controllers/ebay_controller.rb"
+  require_relative "app/controllers/ebay_seller_controller.rb"
+  require_relative "app/controllers/ebay_ad_controller.rb"
+  require_relative "app/models/ebay_models.rb"
 
-  require_relative 'lib/ebay_scraper.rb'
-  require_relative 'lib/ebay_api.rb'
-  require_relative 'lib/create_system_post.rb'
-  require_relative 'lib/listing_manager.rb'
-  require_relative 'lib/shortlink_resolver.rb'
-  require_relative 'lib/ad_pool.rb'
+  require_relative "lib/ebay_scraper.rb"
+  require_relative "lib/ebay_api.rb"
+  require_relative "lib/create_system_post.rb"
+  require_relative "lib/listing_manager.rb"
+  require_relative "lib/shortlink_resolver.rb"
+  require_relative "lib/ad_pool.rb"
 
-  require_relative 'jobs/dump_seller_listings.rb'
-  require_relative 'jobs/get_seller_listings.rb'
-  require_relative 'jobs/item_lookup.rb'
-  require_relative 'jobs/clean_up_listings.rb'
+  require_relative "jobs/dump_seller_listings.rb"
+  require_relative "jobs/get_seller_listings.rb"
+  require_relative "jobs/item_lookup.rb"
+  require_relative "jobs/clean_up_listings.rb"
 
-  add_admin_route 'ebay_ads.admin_title', 'ebay'
+  add_admin_route "ebay_ads.admin_title", "ebay"
 
   after_initialize do
     on(:before_create_post) do |post|
@@ -71,17 +83,17 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
-    get '/admin/plugins/ebay' => 'admin/plugins#index', constraints: StaffConstraint.new
+    get "/admin/plugins/ebay" => "admin/plugins#index", :constraints => StaffConstraint.new
   end
 
   EbayAdPlugin::Engine.routes.draw do
-    get '/ebay' => 'ebay#index'
-    get '/ebay/search' => 'ebay#search'
-    get "/ebay/info" => "ebay#info", constraints: StaffConstraint.new
-    get "/ebay/user/update/:username" => "ebay#update_user", constraints: StaffConstraint.new
+    get "/ebay" => "ebay#index"
+    get "/ebay/search" => "ebay#search"
+    get "/ebay/info" => "ebay#info", :constraints => StaffConstraint.new
+    get "/ebay/user/update/:username" => "ebay#update_user", :constraints => StaffConstraint.new
     get "/ebay/random" => "ebay#random"
     get "/ebay/ad" => "ebay_ad#ad_data"
-    
+
     get "/ebay/resolve" => "ebay_ad#resolve_ebay_us"
 
     get "/ebay/adclick/:item_id" => "ebay_ad#ad_click"
@@ -89,25 +101,29 @@ after_initialize do
 
     get "/ebay/vote/:item_id" => "ebay_ad#vote"
 
-    get "/ebay/seller/custom_add/" => "ebay_seller#add_sellers_by_custom_field", constraints: StaffConstraint.new
-    get "/ebay/seller/add/:ebay_username" => "ebay_seller#add_seller", constraints: StaffConstraint.new
-    get "/ebay/seller/remove/:ebay_username" => "ebay_seller#remove_seller", constraints: StaffConstraint.new
+    get "/ebay/seller/custom_add/" => "ebay_seller#add_sellers_by_custom_field",
+        :constraints => StaffConstraint.new
+    get "/ebay/seller/add/:ebay_username" => "ebay_seller#add_seller",
+        :constraints => StaffConstraint.new
+    get "/ebay/seller/remove/:ebay_username" => "ebay_seller#remove_seller",
+        :constraints => StaffConstraint.new
     get "/ebay/user/update_settings/:ebay_username" => "ebay_seller#update_user_settings"
     get "/ebay/user/clear_settings/:user_id" => "ebay_seller#clear_user_settings"
     get "/ebay/user/settings/:user_id" => "ebay_seller#get_user_settings"
-    get "/ebay/seller/info/:ebay_username" => "ebay_seller#seller_info", constraints: StaffConstraint.new
-    get "/ebay/seller/info" => "ebay_seller#all_seller_info", constraints: StaffConstraint.new
-    
-    get "/ebay/seller/block/:ebay_username" => "ebay_seller#block_seller", constraints: StaffConstraint.new
-    get "/ebay/seller/unblock/:ebay_username" => "ebay_seller#unblock_seller", constraints: StaffConstraint.new
-    get "/ebay/seller/blocklist" => "ebay_seller#blocklist", constraints: StaffConstraint.new
-    get "/ebay/seller/dump/:ebay_username" => "ebay_seller#dump_seller_listings", constraints: StaffConstraint.new
+    get "/ebay/seller/info/:ebay_username" => "ebay_seller#seller_info",
+        :constraints => StaffConstraint.new
+    get "/ebay/seller/info" => "ebay_seller#all_seller_info", :constraints => StaffConstraint.new
 
+    get "/ebay/seller/block/:ebay_username" => "ebay_seller#block_seller",
+        :constraints => StaffConstraint.new
+    get "/ebay/seller/unblock/:ebay_username" => "ebay_seller#unblock_seller",
+        :constraints => StaffConstraint.new
+    get "/ebay/seller/blocklist" => "ebay_seller#blocklist", :constraints => StaffConstraint.new
+    get "/ebay/seller/dump/:ebay_username" => "ebay_seller#dump_seller_listings",
+        :constraints => StaffConstraint.new
   end
-  
-  Discourse::Application.routes.append do
-    mount EbayAdPlugin::Engine, at: "/"
-  end
+
+  Discourse::Application.routes.append { mount EbayAdPlugin::Engine, at: "/" }
 
   module ::Jobs
     class UpdateEbayListings < ::Jobs::Scheduled
@@ -135,11 +151,7 @@ after_initialize do
         delay_per_seller = spread / eligible.size
 
         eligible.each_with_index do |ebay_username, idx|
-          Jobs.enqueue_in(
-            idx * delay_per_seller,
-            :get_seller_listings,
-            ebay_seller: ebay_username,
-          )
+          Jobs.enqueue_in(idx * delay_per_seller, :get_seller_listings, ebay_seller: ebay_username)
         end
       end
     end
@@ -147,50 +159,28 @@ after_initialize do
     class CleanEbayListings < ::Jobs::Scheduled
       every 4.hours
       def execute(args)
-          Jobs.enqueue(:clean_up_listings)
+        Jobs.enqueue(:clean_up_listings)
       end
     end
-
   end
 
-  def extract_ebay_urls(text)
-    text.scan(/https?:\/\/(?:www\.)?ebay\.[a-z\.]{2,6}(?:\/\S*)?/i)
-  end
-
-  def extract_ebay_item_id(url)
-    match = url.match(/(\d{11,14})/)
-    match[1] if match
-  end
-
-  DiscourseEvent.on(:post_created) do |post, opts, user|
-
-    if ! SiteSetting.ebay_topic_id.empty? && user.id != Discourse.system_user.id
+  on(:post_created) do |post, opts, user|
+    if !SiteSetting.ebay_topic_id.empty? && user.id != Discourse.system_user.id
       if post.topic_id == SiteSetting.ebay_topic_id.to_i
-        urls = extract_ebay_urls(post.raw)
+        urls = EbayAdPlugin.extract_ebay_urls(post.raw)
 
         urls.each do |url|
-          item_id = extract_ebay_item_id(url)
+          item_id = EbayAdPlugin.extract_ebay_item_id(url)
           Jobs.enqueue(:item_lookup, item_id: item_id)
         end
       end
     end
   end
 
-end
-
-def get_id_from_post(text)
-  match = text.match(/rowid:\s*(.+?)\n/)
-  extracted_string = match[1] if match
-end
-
-DiscourseEvent.on(:post_destroyed) do |post, opts, user|
-  if post.user == Discourse.system_user && post.topic_id == SiteSetting.ebay_topic_id.to_i     
-    puts "DELETING"
-    item_id = get_id_from_post(post.raw)
-    if item_id
-      puts item_id
-
-      EbayAdPlugin::EbayListing.delete(item_id)
+  on(:post_destroyed) do |post, opts, user|
+    if post.user == Discourse.system_user && post.topic_id == SiteSetting.ebay_topic_id.to_i
+      item_id = EbayAdPlugin.get_id_from_post(post.raw)
+      EbayAdPlugin::EbayListing.delete(item_id) if item_id
     end
   end
 end

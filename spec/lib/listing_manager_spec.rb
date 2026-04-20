@@ -10,8 +10,14 @@ RSpec.describe EbayAdPlugin::ListingManager do
           "itemId" => "v1|111|0",
           "legacyItemId" => "111",
           "title" => "Charizard",
-          "price" => { "value" => "100.00", "currency" => "USD" },
-          "seller" => { "username" => "pokefan", "feedbackScore" => 500 },
+          "price" => {
+            "value" => "100.00",
+            "currency" => "USD",
+          },
+          "seller" => {
+            "username" => "pokefan",
+            "feedbackScore" => 500,
+          },
         },
       ]
     end
@@ -50,9 +56,9 @@ RSpec.describe EbayAdPlugin::ListingManager do
   end
 
   describe ".deactivate_unseen" do
-    fab!(:kept)    { Fabricate(:ebay_listing, seller: "alice", item_id: "keep-1", active: true) }
+    fab!(:kept) { Fabricate(:ebay_listing, seller: "alice", item_id: "keep-1", active: true) }
     fab!(:removed) { Fabricate(:ebay_listing, seller: "alice", item_id: "gone-1", active: true) }
-    fab!(:other)   { Fabricate(:ebay_listing, seller: "bob",   item_id: "bob-1",  active: true) }
+    fab!(:other) { Fabricate(:ebay_listing, seller: "bob", item_id: "bob-1", active: true) }
 
     it "deactivates listings not in the fresh fetch for the seller" do
       described_class.deactivate_unseen("alice", %w[keep-1])
@@ -73,9 +79,9 @@ RSpec.describe EbayAdPlugin::ListingManager do
     end
 
     it "does nothing when seller is blank" do
-      expect {
-        described_class.deactivate_unseen(nil, %w[keep-1])
-      }.not_to change { EbayAdPlugin::EbayListing.where(active: false).count }
+      expect { described_class.deactivate_unseen(nil, %w[keep-1]) }.not_to change {
+        EbayAdPlugin::EbayListing.where(active: false).count
+      }
     end
   end
 end

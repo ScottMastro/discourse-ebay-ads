@@ -14,9 +14,7 @@ class RollupEbayBannerImpressions < ActiveRecord::Migration[7.0]
               unique: true,
               name: "index_ebay_impressions_on_username_date"
 
-    add_index :ebay_impressions,
-              :date,
-              name: "index_ebay_impressions_on_date"
+    add_index :ebay_impressions, :date, name: "index_ebay_impressions_on_date"
 
     # Backfill banner impressions only. Search impressions carry no per-day
     # history (lifetime counter per item) — not worth approximating.

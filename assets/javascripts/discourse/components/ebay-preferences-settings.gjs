@@ -25,6 +25,7 @@ export default class EbayPreferencesSettings extends Component {
   get ebayUsername() {
     return this.ebayUserSettings.ebayUsername;
   }
+
   set ebayUsername(value) {
     this.ebayUserSettings.ebayUsername = value;
   }
@@ -32,6 +33,7 @@ export default class EbayPreferencesSettings extends Component {
   get hideListings() {
     return this.ebayUserSettings.hideListings;
   }
+
   set hideListings(value) {
     this.ebayUserSettings.hideListings = value;
   }
@@ -54,6 +56,7 @@ export default class EbayPreferencesSettings extends Component {
         <a
           href="https://www.ebay.com/usr/{{this.ebayUsername}}"
           target="_blank"
+          rel="noopener noreferrer"
         >
           {{dIcon "link"}}
           https://www.ebay.com/usr/{{this.ebayUsername}}

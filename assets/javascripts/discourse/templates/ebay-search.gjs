@@ -55,7 +55,11 @@ export default <template>
 
   <div
     id="listings-container"
-    class="ebay-items-list ebay-items-list-{{if @controller.mode_row 'row' 'grid'}}"
+    class="ebay-items-list ebay-items-list-{{if
+        @controller.mode_row
+        'row'
+        'grid'
+      }}"
   >
     {{i18n "ebay_ads.total_results"}}
     {{@controller.totalCount}}

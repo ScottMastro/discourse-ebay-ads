@@ -22,7 +22,7 @@ en:
         add: "Add"
         block: "Block"
         block_seller_reason: "Provide reason for blocking."
-        listings: "Listings"
+        listings: "Active Listings"
         unblock: "Unblock"
         seller_table: "Seller Table"
         no_block_reason: "[none provided]"

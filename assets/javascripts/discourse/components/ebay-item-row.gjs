@@ -13,6 +13,7 @@ export default class EbayItemRow extends Component {
     <a
       href="https://www.ebay.com/itm/{{@item.legacy_id}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{@item.epn_id}}&toolid=1001"
       target="_blank"
+      rel="noopener noreferrer"
       {{on "click" (fn @trackEbayClick @item.item_id)}}
     >
       <div class="ebay-item ebay-item-row">

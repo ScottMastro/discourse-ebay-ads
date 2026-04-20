@@ -6,11 +6,15 @@ class AddIndexesToEbayListings < ActiveRecord::Migration[7.0]
   INDEXES = {
     "index_ebay_listings_on_seller_active" => {
       columns: %i[seller active],
-      options: { where: "active = TRUE" },
+      options: {
+        where: "active = TRUE",
+      },
     },
     "index_ebay_listings_on_item_id" => {
       columns: :item_id,
-      options: { unique: true },
+      options: {
+        unique: true,
+      },
     },
   }.freeze
 

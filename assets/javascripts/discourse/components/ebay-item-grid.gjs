@@ -9,6 +9,7 @@ import { i18n } from "discourse-i18n";
         <a
           href="https://www.ebay.com/itm/{{@item.legacy_id}}"
           target="_blank"
+          rel="noopener noreferrer"
         >
           {{@item.title}}
         </a>
@@ -48,6 +49,7 @@ import { i18n } from "discourse-i18n";
           class="ebay-item-link-button d-btn btn"
           href="https://www.ebay.com/itm/{{@item.legacy_id}}"
           target="_blank"
+          rel="noopener noreferrer"
         >
           {{i18n "ebay_ads.view_on_ebay"}}
           <span>{{dIcon "fab-ebay"}}</span>

@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 class CleanupStalePluginStoreKeys < ActiveRecord::Migration[7.0]
-  STALE_KEYS = %w[
-    ebay_seller_weights
-    ebay_ad_seller_weights
-    ebay_ad_weight
-    ebay_ad_weights
-  ].freeze
+  STALE_KEYS = %w[ebay_seller_weights ebay_ad_seller_weights ebay_ad_weight ebay_ad_weights].freeze
 
   def up
     execute <<~SQL

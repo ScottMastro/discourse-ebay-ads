@@ -5,8 +5,8 @@ import { action } from "@ember/object";
 import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
-import { eq } from "truth-helpers";
 
 export default class EbayAdBanner extends Component {
   @tracked model = null;
@@ -44,42 +44,37 @@ export default class EbayAdBanner extends Component {
   @action
   trackEbayClick() {
     const encodedId = encodeURIComponent(this.model.item_id);
-    ajax(`/ebay/adclick/${encodedId}?banner=true`).catch((error) => {
-      console.error("Click not recorded:", error);
-    });
+    ajax(`/ebay/adclick/${encodedId}?banner=true`);
+  }
+
+  @action
+  goToSeller(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(`/u/${this.model.seller_info.username}`, "_blank", "noopener");
   }
 
   @action
   likeAd() {
     const vote = this.voteStatus === 1 ? 0 : 1;
     const encodedId = encodeURIComponent(this.model.item_id);
-    ajax(`/ebay/vote/${encodedId}?vote=${vote}`)
-      .then(() => {
-        this.voteStatus = vote;
-      })
-      .catch((error) => {
-        console.error("Vote not recorded:", error);
-      });
+    ajax(`/ebay/vote/${encodedId}?vote=${vote}`).then(() => {
+      this.voteStatus = vote;
+    });
   }
 
   @action
   dislikeAd() {
     const vote = this.voteStatus === -1 ? 0 : -1;
     const encodedId = encodeURIComponent(this.model.item_id);
-    ajax(`/ebay/vote/${encodedId}?vote=${vote}`)
-      .then(() => {
-        this.voteStatus = vote;
-      })
-      .catch((error) => {
-        console.error("Vote not recorded:", error);
-      });
+    ajax(`/ebay/vote/${encodedId}?vote=${vote}`).then(() => {
+      this.voteStatus = vote;
+    });
   }
 
   trackEbayImpression() {
     const encodedId = encodeURIComponent(this.model.item_id);
-    ajax(`/ebay/adimpression/${encodedId}`).catch((error) => {
-      console.error("Impression not recorded:", error);
-    });
+    ajax(`/ebay/adimpression/${encodedId}`);
   }
 
   setupImpressionWatcher() {
@@ -100,7 +95,8 @@ export default class EbayAdBanner extends Component {
 
   <template>
     <div class="advertisement-info">
-      {{i18n "ebay_ads.advertisement"}} ⓘ
+      {{i18n "ebay_ads.advertisement"}}
+      ⓘ
       <a class="all-listings-link" href="/ebay">
         {{i18n "ebay_ads.banner.all_listings"}}
       </a>
@@ -114,6 +110,7 @@ export default class EbayAdBanner extends Component {
             class="ebay-ad-item-info ebay-ad-flex"
             href="https://www.ebay.com/itm/{{this.model.legacy_id}}?mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid={{this.model.epn_id}}&toolid=1001"
             target="_blank"
+            rel="noopener noreferrer"
             {{on "click" this.trackEbayClick}}
           >
             <div class="ebay-ad-image">
@@ -129,11 +126,8 @@ export default class EbayAdBanner extends Component {
 
               <div class="ebay-ad-clickables-container">
                 {{#if this.model.seller_info}}
-                  <a
-                    class="ebay-ad-clickable"
-                    href="/u/{{this.model.seller_info.username}}"
-                    target="_blank"
-                  >
+                  {{! template-lint-disable no-invalid-interactive }}
+                  <div class="ebay-ad-clickable" {{on "click" this.goToSeller}}>
                     <img
                       class="ebay-ad-avatar"
                       src={{this.model.seller_info.avatar}}
@@ -141,7 +135,7 @@ export default class EbayAdBanner extends Component {
                     <div class="ebay-ad-seller-info-name">
                       {{this.model.seller_info.username}}
                     </div>
-                  </a>
+                  </div>
                 {{/if}}
 
                 <div class="vote-div">
@@ -157,11 +151,7 @@ export default class EbayAdBanner extends Component {
                   />
                   <DButton
                     @action={{this.dislikeAd}}
-                    @icon={{if
-                      (eq this.voteStatus -1)
-                      "circle-xmark"
-                      "xmark"
-                    }}
+                    @icon={{if (eq this.voteStatus -1) "circle-xmark" "xmark"}}
                     class="vote-button vote-dislike-button
                       {{if
                         (eq this.voteStatus -1)

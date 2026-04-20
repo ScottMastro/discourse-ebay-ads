@@ -6,7 +6,5 @@ export default class EbayAdSlot extends Component {
     return siteSettings.enable_ebay_ads && siteSettings.show_ebay_ad_banner;
   }
 
-  <template>
-    <EbayAdBanner />
-  </template>
+  <template><EbayAdBanner /></template>
 }

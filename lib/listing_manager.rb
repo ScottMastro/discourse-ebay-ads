@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module EbayAdPlugin::ListingManager
   def self.record_ebay_listings(listings)
     return if listings.blank?

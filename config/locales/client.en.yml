@@ -1,4 +1,9 @@
 en:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          ebay_ads: "eBay Ads"
   js:
     ebay_ads:
       ebay_seller: "Seller"

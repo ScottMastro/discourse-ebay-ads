@@ -1,4 +1,4 @@
-plugins:
+ebay_ads:
   enable_ebay_ads:
     default: false
     client: true

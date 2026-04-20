@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # name: discourse-ebay-ads
-# version: 1.0.1
+# version: 1.3
 # authors: ScottMastro
 # url: https://github.com/ScottMastro/discourse-ebay-ads
 # required_version: 2.7.0
